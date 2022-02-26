@@ -7,6 +7,7 @@ temp-data/
 z_docstring.py
 TODOs.md
 time_varying_experiments/baselines/experiment_results/experiment_results/
+time_varying_experiments/temp/
 
 # macOS users
 .DS_Store
