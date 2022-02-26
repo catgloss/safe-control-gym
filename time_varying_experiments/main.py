@@ -1,6 +1,7 @@
 """Template training/plotting/testing script.
 
 """
+import pdb
 import os
 import sys
 from functools import partial
@@ -42,6 +43,7 @@ def train(config):
     if config.restore:
         control_agent.load(os.path.join(config.restore, "model_latest.pt"))
     # Training.
+    exit()
     control_agent.learn()
     control_agent.close()
     print("Training done.")

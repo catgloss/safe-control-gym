@@ -1,34 +1,22 @@
-# MPC args
 algo_config:
-  horizon: 10
-  r_mpc:
+  horizon: 20
+  r_lin:
     - 0.1
-  q_mpc:
+  q_lin:
     - 1
     - 1
     - 1
     - 1
-  train_iterations: 800
-  validation_iterations: 200
-  optimization_iterations:
-    - 2000
-    - 2000
-    - 2000
-    - 2000
-  learning_rate:
-    - 0.01
-    - 0.01
-    - 0.01
-    - 0.01
-# Runner args
-task_config: 
-  deque_size: 10
-  eval_batch_size: 10
+  n_samples: 600
+  warmstart: False
+  tau: 0.95
+  run_length: 30
+
+task_config:
   ctrl_freq: 10
-  pyb_freq: 240
+  pyb_freq: 1000
   info_in_reset: True
-  done_on_violation: True
-  disturbances: null
+  cost: rl_reward
   constraints:
     - constraint_form: abs_bound
       bound: 0.4
@@ -37,6 +25,7 @@ task_config:
     - constraint_form: default_constraint
       constrained_variable: input
       upper_bounds: 0.2
+  done_on_violation: True
   init_state:
     init_x: 0.1
     init_x_dot: -0.5

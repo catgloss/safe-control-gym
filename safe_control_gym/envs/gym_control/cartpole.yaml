@@ -22,6 +22,9 @@ disturbances: null
 adversary_disturbance: null 
 adversary_disturbance_offset: 0.0
 adversary_disturbance_scale: 0.01
+env_disturbance: null 
+env_disturbance_type: default
+env_disturbance_scale: 0.01
 # Constraints
 constraints: null
 done_on_violation: False

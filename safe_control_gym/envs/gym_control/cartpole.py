@@ -76,7 +76,7 @@ class CartPole(BenchmarkEnv):
             "distrib": "choice",
             "args": [[1, 5, 10]]
         },
-        "cart_mass": {  # Nominal: 1
+        "cart_mass": {  # Nominal: 
             "distrib": "uniform",
             "low": 0.5,
             "high": 1.5

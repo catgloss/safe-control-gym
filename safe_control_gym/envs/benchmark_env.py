@@ -83,6 +83,9 @@ class BenchmarkEnv(gym.Env):
                  adversary_disturbance=None,
                  adversary_disturbance_offset=0.0,
                  adversary_disturbance_scale=0.01,
+                 env_disturbance=None,
+                 env_disturbance_type="default",
+                 env_disturbance_scale=0.01,
                  **kwargs
                  ):
         """Initialization method for BenchmarkEnv.
@@ -191,6 +194,10 @@ class BenchmarkEnv(gym.Env):
         self.adversary_disturbance = adversary_disturbance
         self.adversary_disturbance_offset = adversary_disturbance_offset
         self.adversary_disturbance_scale = adversary_disturbance_scale
+        # Set environment disturbance info
+        self.env_disturbance = env_disturbance
+        self.env_disturbance_type = env_disturbance_type
+        self.env_disturbance_scale = env_disturbance_scale
         self._setup_disturbances()
         # Default seed None means pure randomness/no seeding.
         self.seed(seed)
@@ -308,6 +315,11 @@ class BenchmarkEnv(gym.Env):
             self.adversary_action_space = spaces.Box(low=-1, high=1, shape=(dim,))
             # Adversary obs are the same as those of the protagonist.
             self.adversary_observation_space = self.observation_space
+        if self.env_disturbance is not None:
+            assert self.env_disturbance in self.DISTURBANCE_MODES, "[ERROR] in Cartpole._setup_disturbances()"
+            shared_args = self.DISTURBANCE_MODES[self.env_disturbance]
+            dim = shared_args["dim"]
+            self.env_disturbance_space = [dim, self.env_disturbance, self.env_disturbance_type, self.env_disturbance_scale]
 
     def _setup_constraints(self):
         """Creates a list of constraints as an attribute."""
@@ -316,6 +328,7 @@ class BenchmarkEnv(gym.Env):
         if self.CONSTRAINTS is not None:
             self.constraints = create_constraint_list(self.CONSTRAINTS, self.AVAILABLE_CONSTRAINTS, self)
             self.num_constraints = self.constraints.num_constraints
+        breakpoint()
 
     def _set_action_space(self):
         """Defines the action space of the environment.

@@ -31,7 +31,7 @@ algo_config:
   use_gpu: false
   inertial_prop:
     - 0.027
-    - 0.000014
+    - 0.0000145
   prior_param_coeff: 1.5
   prob: 0.955
   initial_rollout_std: 0.001
@@ -71,30 +71,42 @@ task_config:
       upper_bounds:
         - 0.2
         - 0.2
+  quad_type: 2
+  randomized_init: False
   done_on_violation: True
-  disturbances: null
+  disturbances:
+      dynamics:
+      - disturbance_func: white_noise
+        std: 0.1
+  env_disturbance: dynamics
+  env_disturbance_type: default
+  env_disturbance_scale: 0.01
+
   init_state_randomization_info:
     init_x:
       distrib: 'uniform'
-      low: -1.0
-      high: 1.0
+      low: -0.5
+      high: 0.5
     init_x_dot:
       distrib: 'uniform'
-      low: -0.3
-      high: 0.3
+      low: -0.01
+      high: 0.01
     init_z:
       distrib: 'uniform'
       low: 0.1
       high: 1.5
     init_z_dot:
       distrib: 'uniform'
-      low: -0.2
-      high: 0.3
+      low: -0.01
+      high: 0.01
     init_theta:
       distrib: 'uniform'
-      low: -0.2
-      high: 0.2
+      low: -0.3
+      high: 0.3
     init_theta_dot:
       distrib: 'uniform'
-      low: -1.7
-      high: 1.7
+      low: -0.01
+      high: 0.01
+  task: traj_tracking
+  episode_len_sec: 6
+  done_on_out_of_bound: False
