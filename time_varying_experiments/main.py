@@ -37,6 +37,7 @@ def train(config):
                          env_func,
                          training=True,
                          checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
+                         output_dir=config.output_dir,
                          device=config.device,
                          **config.algo_config)
     control_agent.reset()

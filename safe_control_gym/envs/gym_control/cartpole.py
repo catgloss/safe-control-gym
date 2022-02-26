@@ -121,6 +121,9 @@ class CartPole(BenchmarkEnv):
         "trajectory_scale": 0.2
     }
 
+    ENV_TYPES = ["default", "custom", "friction", "bumps"]
+    ENV_SCHEDULERS = ["constant", "random_walk", "uniform"]
+
     def __init__(self,
                  init_state=None,
                  prior_prop=None,
@@ -501,8 +504,9 @@ class CartPole(BenchmarkEnv):
             tab_force = tab_force + self.adv_action
             # Clear adversary's action, wait for the next one.
             self.adv_action = None
-            if env_disturb:
-                tab_force = tab_force + np.random.rand(tab_force.shape)
+        if env_disturb:
+            if self.env_scheduler == "constant":
+                tab_force = tab_force + tab_force*np.random.rand(1)
         for _ in range(self.PYB_STEPS_PER_CTRL):
             # apply disturbance (by tabbing pole on x-z plane).
             if tab_force is not None:

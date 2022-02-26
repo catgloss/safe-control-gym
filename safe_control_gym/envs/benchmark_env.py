@@ -49,6 +49,9 @@ class BenchmarkEnv(gym.Env):
     INERTIAL_PROP_RAND_INFO = None  # Dict of parameters & distributions for domain randomization.
     INIT_STATE_RAND_INFO = None  # Dict of state name & distribution info to randomize at episode reset
     TASK_INFO = None  # Dict of task related info, e.g. goal state or trajectory args.
+    ENV_SCHEDULERS = None
+    ENV_TYPES = None
+
 
     def __init__(self,
                  output_dir=None,
@@ -85,6 +88,7 @@ class BenchmarkEnv(gym.Env):
                  adversary_disturbance_scale=0.01,
                  env_disturbance=None,
                  env_disturbance_type="default",
+                 env_scheduler="custom",
                  env_disturbance_scale=0.01,
                  **kwargs
                  ):
@@ -197,6 +201,7 @@ class BenchmarkEnv(gym.Env):
         # Set environment disturbance info
         self.env_disturbance = env_disturbance
         self.env_disturbance_type = env_disturbance_type
+        self.env_scheduler = env_scheduler
         self.env_disturbance_scale = env_disturbance_scale
         self._setup_disturbances()
         # Default seed None means pure randomness/no seeding.

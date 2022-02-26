@@ -21,5 +21,6 @@ task_config:
         std: 0.1
   env_disturbance: dynamics
   env_disturbance_type: default
+  env_scheduler: constant
   env_disturbance_scale: 0.01
 
