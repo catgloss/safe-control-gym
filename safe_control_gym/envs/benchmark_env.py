@@ -328,7 +328,6 @@ class BenchmarkEnv(gym.Env):
         if self.CONSTRAINTS is not None:
             self.constraints = create_constraint_list(self.CONSTRAINTS, self.AVAILABLE_CONSTRAINTS, self)
             self.num_constraints = self.constraints.num_constraints
-        breakpoint()
 
     def _set_action_space(self):
         """Defines the action space of the environment.

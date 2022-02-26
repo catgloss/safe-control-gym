@@ -43,7 +43,6 @@ def train(config):
     if config.restore:
         control_agent.load(os.path.join(config.restore, "model_latest.pt"))
     # Training.
-    exit()
     control_agent.learn()
     control_agent.close()
     print("Training done.")
@@ -89,7 +88,7 @@ def test_policy(config):
     # Create the controller/control_agent.
     control_agent = make(config.algo,
                          env_func,
-                         training=False,
+                         training=True,
                          checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
                          output_dir=config.output_dir,
                          device=config.device,

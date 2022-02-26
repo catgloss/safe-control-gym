@@ -492,6 +492,7 @@ class CartPole(BenchmarkEnv):
         # Determine the disturbance force.
         passive_disturb = "dynamics" in self.disturbances
         adv_disturb = self.adversary_disturbance == "dynamics"
+        env_disturb = self.env_disturbance == "dynamics"
         if passive_disturb or adv_disturb:
             tab_force = np.zeros(2)
         if passive_disturb:
@@ -500,6 +501,8 @@ class CartPole(BenchmarkEnv):
             tab_force = tab_force + self.adv_action
             # Clear adversary's action, wait for the next one.
             self.adv_action = None
+            if env_disturb:
+                tab_force = tab_force + np.random.rand(tab_force.shape)
         for _ in range(self.PYB_STEPS_PER_CTRL):
             # apply disturbance (by tabbing pole on x-z plane).
             if tab_force is not None:
