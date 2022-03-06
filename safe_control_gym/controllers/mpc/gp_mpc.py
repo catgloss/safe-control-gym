@@ -17,6 +17,7 @@ Implementation details:
     3. Each dimension of the learned error dynamics is an independent Zero Mean SE Kernel GP.
 
 """
+from pyrsistent import s
 import scipy
 import numpy as np
 import casadi as cs
@@ -95,8 +96,12 @@ class GPMPC(MPC):
             additional_constraints (list): list of Constraint objects defining additional constraints to be used.
 
         """
-        self.prior_env_func = partial(env_func,
-                                      inertial_prop=np.array(inertial_prop)*prior_param_coeff)
+        if inertial_prop is None:                
+            self.prior_env_func = partial(env_func,
+                                        inertial_prop=None)
+        else:
+            self.prior_env_func = partial(env_func,
+                                        inertial_prop=np.array(inertial_prop)*prior_param_coeff)
         self.prior_param_coeff = prior_param_coeff
         # Initialize the method using linear MPC.
         self.prior_ctrl = LinearMPC(
@@ -289,6 +294,7 @@ class GPMPC(MPC):
                     raise NotImplementedError('gp_approx method is incorrect or not implemented')
             # Udate Final covariance.
             for si, state_constraint in enumerate(self.constraints.state_constraints):
+
                 state_constraint_set[si][:,-1] = -1 * self.inverse_cdf * \
                                                 np.absolute(state_constraint.A) @ np.sqrt(np.diag(cov_x))
             state_covariances[-1] = cov_x

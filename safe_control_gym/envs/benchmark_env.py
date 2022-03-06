@@ -88,8 +88,10 @@ class BenchmarkEnv(gym.Env):
                  adversary_disturbance_scale=0.01,
                  env_disturbance=None,
                  env_disturbance_type="default",
+                 env_disturbance_link=-1,
                  env_scheduler="custom",
-                 env_disturbance_scale=0.01,
+                 env_disturbance_min = 0,
+                 env_disturbance_max = 1,
                  **kwargs
                  ):
         """Initialization method for BenchmarkEnv.
@@ -202,7 +204,9 @@ class BenchmarkEnv(gym.Env):
         self.env_disturbance = env_disturbance
         self.env_disturbance_type = env_disturbance_type
         self.env_scheduler = env_scheduler
-        self.env_disturbance_scale = env_disturbance_scale
+        self.env_disturbance_min = env_disturbance_min
+        self.env_disturbance_max = env_disturbance_max
+        self.env_disturbance_link = env_disturbance_link
         self._setup_disturbances()
         # Default seed None means pure randomness/no seeding.
         self.seed(seed)
@@ -255,7 +259,7 @@ class BenchmarkEnv(gym.Env):
         else:
             raise RuntimeError(
                 "[ERROR] adversary_disturbance does not exist, env.set_adversary_control() cannot be called."
-            )
+            )  
 
     def _check_initial_reset(self):
         """Makes sure that .reset() is called at least once before .step().
@@ -324,7 +328,7 @@ class BenchmarkEnv(gym.Env):
             assert self.env_disturbance in self.DISTURBANCE_MODES, "[ERROR] in Cartpole._setup_disturbances()"
             shared_args = self.DISTURBANCE_MODES[self.env_disturbance]
             dim = shared_args["dim"]
-            self.env_disturbance_space = [dim, self.env_disturbance, self.env_disturbance_type, self.env_disturbance_scale]
+            self.env_action_space = spaces.Box(low=self.env_disturbance_min, high=self.env_disturbance_max, shape=(dim,))
 
     def _setup_constraints(self):
         """Creates a list of constraints as an attribute."""

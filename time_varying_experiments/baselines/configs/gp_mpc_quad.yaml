@@ -29,9 +29,7 @@ algo_config:
     - 0.01
   normalize_training_data: False
   use_gpu: false
-  inertial_prop:
-    - 0.027
-    - 0.0000145
+  inertial_prop: null
   prior_param_coeff: 1.5
   prob: 0.955
   initial_rollout_std: 0.001
@@ -39,6 +37,13 @@ algo_config:
   gp_approx: 'mean_eq'
   sparse_gp: false
   online_learning: False
+  additional_constraints:
+    - constraint_form: linear_constraint
+      A:
+        - [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ]
+      b:
+        - 0.0
+      constrained_variable: state
   input_mask:
     - 0
     - 1
@@ -63,6 +68,7 @@ task_config:
   pyb_freq: 240
   info_in_reset: True
   cost: quadratic
+  disturbances: null
   constraints:
     - constraint_form: default_constraint
       constrained_variable: state
@@ -73,15 +79,7 @@ task_config:
         - 0.2
   quad_type: 2
   randomized_init: False
-  done_on_violation: True
-  disturbances:
-      dynamics:
-      - disturbance_func: white_noise
-        std: 0.1
-  env_disturbance: dynamics
-  env_disturbance_type: default
-  env_disturbance_scale: 0.01
-
+  done_on_violation: False 
   init_state_randomization_info:
     init_x:
       distrib: 'uniform'

@@ -33,13 +33,21 @@ def train(config):
     # Define function to create task/env.
     env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
     # Create the controller/control_agent.
-    control_agent = make(config.algo,
-                         env_func,
-                         training=True,
-                         checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
-                         output_dir=config.output_dir,
-                         device=config.device,
-                         **config.algo_config)
+    if config.algo == "ppo":
+        control_agent = make(config.algo,
+                            env_func,
+                            training=True,
+                            checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
+                            output_dir=config.output_dir,
+                            device=config.device,
+                            **config.algo_config)
+    elif config.algo == "gp_mpc":
+        control_agent = make(config.algo,
+                    env_func,
+                    training=True,
+                    checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
+                    device=config.device,
+                    **config.algo_config)
     control_agent.reset()
     if config.restore:
         control_agent.load(os.path.join(config.restore, "model_latest.pt"))
@@ -77,33 +85,66 @@ def test_policy(config):
 
     """
     # Evaluation setup.
-    set_device_from_config(config)
-    if config.set_test_seed:
-        # seed the evaluation (both controller and env) if given
+    if config.algo == "ppo":
+        set_device_from_config(config)
+        if config.set_test_seed:
+            # seed the evaluation (both controller and env) if given
+            set_seed_from_config(config)
+            env_seed = config.seed
+        else:
+            env_seed = None
+        # Define function to create task/env.
+
+        env_func = partial(make, config.task, seed=env_seed, output_dir=config.output_dir, **config.task_config)
+        # Create the controller/control_agent.
+        control_agent = make(config.algo,
+                            env_func,
+                            training=True,
+                            checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
+                            output_dir=config.output_dir,
+                            device=config.device,
+                            seed=config.seed,
+                            **config.algo_config)
+        control_agent.reset()
+        if config.restore:
+            control_agent.load(os.path.join(config.restore, "model_latest.pt"))
+        # Test controller.
+        results = control_agent.run(n_episodes=config.algo_config.eval_batch_size,
+                                    render=config.render,
+                                    verbose=config.verbose,
+                                    use_adv=config.use_adv,
+                                    logging=True)
+    elif config.algo == "gp_mpc":
+        set_device_from_config(config)
+        if config.set_test_seed:
+            # seed the evaluation (both controller and env) if given
+            set_seed_from_config(config)
+            env_seed = config.seed
+        else:
+            env_seed = None
+        # Define function to create task/env.
+        init_state = {'init_x': 0.1,
+            'init_x_dot': -0.5,
+            'init_theta': -0.19,
+            'init_theta_dot': -0.5
+            }
         set_seed_from_config(config)
-        env_seed = config.seed
-    else:
-        env_seed = None
-    # Define function to create task/env.
-    env_func = partial(make, config.task, seed=env_seed, output_dir=config.output_dir, **config.task_config)
-    # Create the controller/control_agent.
-    control_agent = make(config.algo,
+        set_device_from_config(config)
+        env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
+        test_env = env_func(init_state=init_state, randomized_init=False, seed=2)
+        # Create the controller/control_agent.
+        control_agent = make(config.algo,
                          env_func,
                          training=True,
                          checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
-                         output_dir=config.output_dir,
                          device=config.device,
-                         seed=config.seed,
                          **config.algo_config)
-    control_agent.reset()
-    if config.restore:
-        control_agent.load(os.path.join(config.restore, "model_latest.pt"))
-    # Test controller.
-    results = control_agent.run(n_episodes=config.algo_config.eval_batch_size,
-                                render=config.render,
-                                verbose=config.verbose,
-                                use_adv=config.use_adv,
-                                plot=True)
+        control_agent.reset()
+        # Test controller.
+        breakpoint()
+        results = control_agent.run(env=test_env,
+                                    max_steps=100)
+
     # Save evalution results.
     if config.eval_output_dir is not None:
         eval_output_dir = config.eval_output_dir

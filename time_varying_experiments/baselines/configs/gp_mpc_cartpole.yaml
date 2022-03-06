@@ -30,13 +30,20 @@ algo_config:
   gp_approx: 'mean_eq'
   sparse_gp: false
   online_learning: False
+  additional_constraints:
+    - constraint_form: linear_constraint
+      A:
+        - [ 1.0, 1.0, 1.0, 1.0 ]
+      b:
+        - 0.0
+      constrained_variable: state
   output_dir: './trained_gp_model'
 
 task_config:
   ctrl_freq: 10
   pyb_freq: 240
   info_in_reset: True
-  done_on_violation: True
+  done_on_violation: False
   disturbances: null
   constraints:
     - constraint_form: abs_bound
@@ -46,11 +53,6 @@ task_config:
     - constraint_form: default_constraint
       constrained_variable: input
       upper_bounds: 0.2
-  init_state:
-    init_x: 0.1
-    init_x_dot: -0.5
-    init_theta: -0.19
-    init_theta_dot: -0.5
   randomized_init: False
   init_state_randomization_info:
     init_x:

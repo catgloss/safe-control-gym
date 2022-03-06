@@ -481,6 +481,9 @@ class CartPole(BenchmarkEnv):
         # Only use the scalar value.
         force = force[0]
         return force
+    def _get_env_disturbance(self):
+        scheduler = self.env_scheduler 
+        type = self.env_disturbance_type
 
     def _advance_simulation(self, force):
         """Apply the commanded forces and adversarial actions to the cartpole.
@@ -505,8 +508,8 @@ class CartPole(BenchmarkEnv):
             # Clear adversary's action, wait for the next one.
             self.adv_action = None
         if env_disturb:
-            if self.env_scheduler == "constant":
-                tab_force = tab_force + tab_force*np.random.rand(1)
+
+            tab_force = tab_force + self._get_env_disturbance()
         for _ in range(self.PYB_STEPS_PER_CTRL):
             # apply disturbance (by tabbing pole on x-z plane).
             if tab_force is not None:

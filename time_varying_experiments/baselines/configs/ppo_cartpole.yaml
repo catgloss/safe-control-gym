@@ -14,13 +14,8 @@ task_config:
       bound: 0.4
       constrained_variable: state
       active_dims: 0
-  done_on_violation: True
-  disturbances: 
-    dynamics:
-      - disturbance_func: white_noise
-        std: 0.1
-  env_disturbance: dynamics
-  env_disturbance_type: default
-  env_scheduler: constant
-  env_disturbance_scale: 0.01
+    - constraint_form: default_constraint
+      constrained_variable: input
+      upper_bounds: 0.2
+  done_on_violation: False
 
