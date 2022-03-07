@@ -20,16 +20,16 @@ algo_config:
     - 0.01
     - 0.01
     - 0.01
-  normalize_training_data: False
+  normalize_training_data: false
   use_gpu: false
   inertial_prop: null
   prior_param_coeff: 1.5
   prob: 0.955
   initial_rollout_std: 0.005
-  warmstart: True
+  warmstart: true
   gp_approx: 'mean_eq'
   sparse_gp: false
-  online_learning: False
+  online_learning: false
   additional_constraints:
     - constraint_form: linear_constraint
       A:
@@ -38,6 +38,8 @@ algo_config:
         - 0.0
       constrained_variable: state
   output_dir: './trained_gp_model'
+  logging: true
+  plot: false
 
 task_config:
   ctrl_freq: 10
@@ -53,6 +55,7 @@ task_config:
     - constraint_form: default_constraint
       constrained_variable: input
       upper_bounds: 0.2
+  init_state: null
   randomized_init: False
   init_state_randomization_info:
     init_x:

@@ -32,14 +32,19 @@ def train(config):
     # Define function to create task/env.
     env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
     # Create the controller/control_agent.
-    control_agent = make(config.algo,
-                         env_func,
-                         training=True,
-                         checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
-                         output_dir=config.output_dir,
-                         device=config.device,
-                         seed=config.seed,
-                         **config.algo_config)
+    if config.algo == "ppo":
+        control_agent = make(config.algo,
+                            env_func,
+                            training=True,
+                            checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
+                            output_dir=config.output_dir,
+                            device=config.device,
+                            seed=config.seed,
+                            **config.algo_config)
+    elif config.algo == "gp_mpc":
+        control_agent = make(config.algo,
+                            env_func,
+                            **config.algo_config)
     control_agent.reset()
     if config.restore:
         control_agent.load(os.path.join(config.restore, "model_latest.pt"))

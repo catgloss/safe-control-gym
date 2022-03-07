@@ -26,6 +26,7 @@ class MPC(BaseController):
             warmstart=True,
             output_dir="results/temp",
             additional_constraints=None,
+            logging=False,
             **kwargs
             ):
         """Creates task and controller.
@@ -55,6 +56,7 @@ class MPC(BaseController):
             self.reset_constraints(self.env.constraints.constraints)
             self.additional_constraints = []
         # Model parameters
+        self.logging = logging
         self.model = self.env.symbolic
         self.dt = self.model.dt
         self.T = horizon
@@ -291,7 +293,6 @@ class MPC(BaseController):
     def run(self,
             env=None,
             render=False,
-            logging=False,
             max_steps=100
             ):
         """Runs evaluation with current policy.
@@ -349,7 +350,7 @@ class MPC(BaseController):
         # Collect evaluation results.
         ep_lengths = np.asarray(ep_lengths)
         ep_returns = np.asarray(ep_returns)
-        if logging:
+        if self.logging:
             msg = "****** Evaluation ******\n"
             msg += "eval_ep_length {:.2f} +/- {:.2f} | eval_ep_return {:.3f} +/- {:.3f}\n".format(
                 ep_lengths.mean(), ep_lengths.std(), ep_returns.mean(),
