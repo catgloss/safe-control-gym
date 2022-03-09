@@ -519,7 +519,6 @@ class GPMPC(MPC):
         Args:
             input_data, target_data (optiona, np.array): data to use for training
             gp_model (str): if not None, this is the path to pretrained models to use instead of training new ones.
-            plot (bool): to plot validation trajectories or not.
 
         Returns:
             training_results (dict): Dictionary of the training results.
@@ -607,7 +606,13 @@ class GPMPC(MPC):
         test_targets_tensor = torch.Tensor(test_targets).double()
 
         if self.plot:
-            init_state = np.array([-1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+            if self.model.nx == 6:
+                init_state = np.array([-1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+            elif self.model.nx == 4: 
+                init_state = np.array([-0.01, 0.0, 0.0, 0.0])
+            else: 
+                raise ValueError("This shape of init_state is not supported")
+
             valid_env = self.env_func(init_state=init_state,
                                       randomized_init=False)
             validation_results = self.prior_ctrl.run(env=valid_env,
