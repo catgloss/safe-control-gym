@@ -39,7 +39,7 @@ algo_config:
       constrained_variable: state
   output_dir: './trained_gp_model'
   logging: true
-  plot: false
+  plot: true
 
 task_config:
   ctrl_freq: 10

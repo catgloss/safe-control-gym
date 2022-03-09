@@ -17,7 +17,6 @@ Implementation details:
     3. Each dimension of the learned error dynamics is an independent Zero Mean SE Kernel GP.
 
 """
-from pyrsistent import s
 import scipy
 import numpy as np
 import casadi as cs
@@ -67,7 +66,6 @@ class GPMPC(MPC):
             inertial_prop: list = [1.0],
             prior_param_coeff: float = 1.0,
             output_dir: str = "results/temp",
-            logging: bool = False,
             plot: bool = False,
             **kwargs
             ):
@@ -98,17 +96,9 @@ class GPMPC(MPC):
             additional_constraints (list): list of Constraint objects defining additional constraints to be used.
 
         """
-        if inertial_prop is None:
-            self.prior_env_func = partial(env_func,
-                                        inertial_prop=None)
-        elif isinstance(inertial_prop, dict):
-                    self.prior_env_func = partial(env_func,
-                                        inertial_prop=np.array(list(inertial_prop.values()))*prior_param_coeff)
-        elif np.array(inertial_prop).shape == (3,):
-            self.prior_env_func = partial(env_func,
-                                        inertial_prop=np.array(inertial_prop)*prior_param_coeff)
-        else: 
-            raise ValueError("[ERROR] in GPMPC.__init__(), inertial_prop is not of shape (3,)")
+        self.plot = plot
+        self.prior_env_func = partial(env_func,
+                                      inertial_prop=np.array(inertial_prop)*prior_param_coeff)
         self.prior_param_coeff = prior_param_coeff
         # Initialize the method using linear MPC.
         self.prior_ctrl = LinearMPC(
@@ -129,10 +119,8 @@ class GPMPC(MPC):
             use_prev_start=use_prev_start,
             output_dir=output_dir,
             additional_constraints=additional_constraints,
-            logging=logging,
             **kwargs)
         # Setup environments.
-        self.plot = plot
         self.env_func = env_func
         self.env = env_func(randomized_init=False)
         self.env_training = env_func(randomized_init=True)
@@ -303,7 +291,6 @@ class GPMPC(MPC):
                     raise NotImplementedError('gp_approx method is incorrect or not implemented')
             # Udate Final covariance.
             for si, state_constraint in enumerate(self.constraints.state_constraints):
-
                 state_constraint_set[si][:,-1] = -1 * self.inverse_cdf * \
                                                 np.absolute(state_constraint.A) @ np.sqrt(np.diag(cov_x))
             state_covariances[-1] = cov_x
@@ -620,9 +607,7 @@ class GPMPC(MPC):
         test_targets_tensor = torch.Tensor(test_targets).double()
 
         if self.plot:
-            breakpoint()
-            # Need to change this - set to 5 for some reason
-            init_state = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+            init_state = np.array([-1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
             valid_env = self.env_func(init_state=init_state,
                                       randomized_init=False)
             validation_results = self.prior_ctrl.run(env=valid_env,
