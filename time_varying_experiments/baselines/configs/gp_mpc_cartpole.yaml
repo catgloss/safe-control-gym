@@ -29,6 +29,7 @@ algo_config:
   warmstart: true
   gp_approx: 'mean_eq'
   sparse_gp: false
+  plot: True
   online_learning: false
   additional_constraints:
     - constraint_form: linear_constraint
@@ -60,16 +61,16 @@ task_config:
   init_state_randomization_info:
     init_x:
       distrib: uniform
-      low: -0.05
-      high: 0.05
+      low: -0.08
+      high: 0.08
     init_x_dot:
       distrib: uniform
       low: -0.05
       high: 0.05
     init_theta:
       distrib: uniform
-      low: -0.05
-      high: 0.05
+      low: -0.08
+      high: 0.08
     init_theta_dot:
       distrib: uniform
       low: -0.05

@@ -141,14 +141,14 @@ def test_policy(config):
                          **config.algo_config)
         control_agent.reset()
         # Test controller.
-        breakpoint()
         results = control_agent.run(env=test_env,
                                     max_steps=100)
-
+    print(results)
     # Save evalution results.
-    if config.eval_output_dir is not None:
+    breakpoint()
+    try:
         eval_output_dir = config.eval_output_dir
-    else:
+    except:
         eval_output_dir = os.path.join(config.output_dir, "eval")
     os.makedirs(eval_output_dir, exist_ok=True)
     # test trajs and statistics 
@@ -159,6 +159,7 @@ def test_policy(config):
     ep_lengths = results["ep_lengths"]
     ep_returns = results["ep_returns"]
     mse = results["mse"]
+    breakpoint()
     msg = "eval_ep_length {:.2f} +/- {:.2f}\n".format(ep_lengths.mean(), ep_lengths.std())
     msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(ep_returns.mean(), ep_returns.std())
     msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
