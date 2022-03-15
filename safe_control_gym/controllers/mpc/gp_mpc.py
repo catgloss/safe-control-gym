@@ -239,11 +239,18 @@ class GPMPC(MPC):
             np.array: targets for GP training, (N, nx).
 
         """
+        print(x_seq)
+        print(x_next_seq)
         # Get the predicted dynamics. This is a linear prior, thus we need to account for the fact that
         # it is linearized about an eq using self.X_GOAL and self.U_GOAL.
         x_pred_seq = self.prior_dynamics_func(x0=x_seq.T - self.prior_ctrl.X_LIN[:, None],
                                                p=u_seq.T - self.prior_ctrl.U_LIN[:,None])['xf'].toarray()
         targets = (x_next_seq.T - (x_pred_seq+self.prior_ctrl.X_LIN[:,None])).transpose()  # (N, nx).
+        print(self.model.nx)
+        print(self.model.nu)
+        print(x_seq.shape)
+        print(u_seq.shape)
+        breakpoint()
         inputs = np.hstack([x_seq, u_seq])  # (N, nx+nu).
         return inputs, targets
 
