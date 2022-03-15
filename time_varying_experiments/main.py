@@ -9,6 +9,7 @@ import os
 import pickle
 import sys
 import torch
+import numpy as np
 
 from safe_control_gym.utils.configuration import ConfigFactory
 from safe_control_gym.utils.plotting import plot_from_logs
@@ -133,14 +134,18 @@ def test_policy(config):
         env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
         test_env = env_func(init_state=init_state, randomized_init=False, seed=2)
         # Create the controller/control_agent.
+        print(config.logging)
+        breakpoint()
         control_agent = make(config.algo,
                          env_func,
                          training=True,
                          checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
                          device=config.device,
+                         logging=config.logging,
                          **config.algo_config)
         control_agent.reset()
         # Test controller.
+        control_agent.learn()
         results = control_agent.run(env=test_env,
                                     max_steps=100)
     print(results)
@@ -160,9 +165,9 @@ def test_policy(config):
     ep_returns = results["ep_returns"]
     mse = results["mse"]
     breakpoint()
-    msg = "eval_ep_length {:.2f} +/- {:.2f}\n".format(ep_lengths.mean(), ep_lengths.std())
-    msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(ep_returns.mean(), ep_returns.std())
-    msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
+    msg = "eval_ep_length {:.2f} +/- {:.2f}\n".format(np.mean(np.array(ep_lengths)), np.std(np.array(ep_lengths)))
+    msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(np.mean(np.array(ep_returns)), np.std(np.array(ep_returns)))
+    msg += "eval_mse {:.3f} +/- {:.3f}\n".format(np.mean(np.array(mse)), np.std(np.array(mse)))
     print(msg)
     if "frames" in results:
         save_video(os.path.join(eval_output_dir, "video.gif"), results["frames"])
@@ -171,7 +176,6 @@ def test_policy(config):
 
 
 MAIN_FUNCS = {"train": train, "plot": make_plots, "test": test_policy}
-
 
 if __name__ == "__main__":
     # Make config.

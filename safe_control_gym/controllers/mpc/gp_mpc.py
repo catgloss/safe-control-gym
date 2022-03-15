@@ -66,6 +66,7 @@ class GPMPC(MPC):
             inertial_prop: list = [1.0],
             prior_param_coeff: float = 1.0,
             output_dir: str = "results/temp",
+            logging: bool = False,
             plot: bool = False,
             **kwargs
             ):
@@ -128,6 +129,7 @@ class GPMPC(MPC):
             use_prev_start=use_prev_start,
             output_dir=output_dir,
             additional_constraints=additional_constraints,
+            logging=logging,
             **kwargs)
         # Setup environments.
         self.env_func = env_func
@@ -618,7 +620,7 @@ class GPMPC(MPC):
             if self.model.nx == 6:
                 init_state = np.array([-1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
             elif self.model.nx == 4: 
-                init_state = np.array([-0.01, 0.0, 0.0, 0.0])
+                init_state = np.array([-0.05, 0.0, -0.05, 0.0])
             else: 
                 raise ValueError("This shape of init_state is not supported")
 

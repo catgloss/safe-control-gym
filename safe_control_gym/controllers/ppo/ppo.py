@@ -215,28 +215,32 @@ class PPO(BaseController):
                 
         obs, info = env.reset()
         obs = self.obs_normalizer(obs)
-        ep_returns, ep_lengths = [], []
+        ep_returns, ep_lengths, ep_mse = [], [], []
         frames = []
         while len(ep_returns) < n_episodes:
             with torch.no_grad():
                 obs = torch.FloatTensor(obs).to(self.device)
                 action = self.agent.ac.act(obs)
             obs, reward, done, info = env.step(action)
+            reward = np.asarray(np.mean(np.array(reward)))
+            
             if render:
                 env.render()
                 frames.append(env.render("rgb_array"))
             if verbose:
                 print("obs {} | act {}".format(obs, action))
-            if done:
-                assert "episode" in info
-                ep_returns.append(info["episode"]["r"])
-                ep_lengths.append(info["episode"]["l"])
+            if done.all():
+                assert "episode" in info["n"][0]
+                ep_returns.append(info["n"][0]["episode"]["r"])
+                ep_lengths.append(info["n"][0]["episode"]["l"])
+                ep_mse.append(info["n"][0]["terminal_info"]["mse"])
+
                 obs, _ = env.reset()
             obs = self.obs_normalizer(obs)
         # Collect evaluation results.
         ep_lengths = np.asarray(ep_lengths)
         ep_returns = np.asarray(ep_returns)
-        eval_results = {"ep_returns": ep_returns, "ep_lengths": ep_lengths}
+        eval_results = {"ep_returns": ep_returns, "ep_lengths": ep_lengths, "mse": ep_mse}
         if len(frames) > 0:
             eval_results["frames"] = frames
         # Other episodic stats from evaluation env.

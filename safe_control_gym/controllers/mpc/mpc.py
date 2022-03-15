@@ -56,6 +56,8 @@ class MPC(BaseController):
             self.reset_constraints(self.env.constraints.constraints)
             self.additional_constraints = []
         # Model parameters
+        print(logging)
+        breakpoint()
         self.logging = logging
         self.model = self.env.symbolic
         self.dt = self.model.dt

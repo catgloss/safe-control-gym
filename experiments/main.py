@@ -109,10 +109,14 @@ def test_policy(config):
                                 verbose=config.verbose,
                                 use_adv=config.use_adv)
     # Save evalution results.
-    if config.eval_output_dir is not None:
+    breakpoint()
+    try:
         eval_output_dir = config.eval_output_dir
-    else:
-        eval_output_dir = os.path.join(config.output_dir, "eval")
+    except:
+        if config.eval_output_dir is not None:
+            eval_output_dir = config.eval_output_dir
+        else:
+            eval_output_dir = os.path.join(config.output_dir, "eval")
     os.makedirs(eval_output_dir, exist_ok=True)
     # test trajs and statistics 
     eval_path = os.path.join(eval_output_dir, config.eval_output_path)
