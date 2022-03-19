@@ -61,4 +61,3 @@ task_config:
       upper_bounds: 0.2
   init_state: null
   randomized_init: False
-

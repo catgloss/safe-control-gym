@@ -1,3 +1,4 @@
+
 algo_config:
   log_interval: 1000
   save_interval: 1000
@@ -5,6 +6,7 @@ algo_config:
   eval_interval: 1000
   eval_save_best: True 
   tensorboard: True
+  eval_output_dir: null
 
 task_config:
   info_in_reset: True

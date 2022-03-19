@@ -32,9 +32,9 @@ def train(config):
     set_seed_from_config(config)
     set_device_from_config(config)
     # Define function to create task/env.
-    env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
     # Create the controller/control_agent.
-    if config.algo == "ppo":
+    if config.algo == "ppo" or config.algo == "rarl" or config.algo == "rap":
+        env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
         control_agent = make(config.algo,
                             env_func,
                             training=True,
@@ -43,10 +43,23 @@ def train(config):
                             device=config.device,
                             **config.algo_config)
     elif config.algo == "gp_mpc":
+        env_func = partial(make, config.task, **config.task_config)
         control_agent = make(config.algo,
                     env_func,
                     training=True,
+                    output_dir=config.output_dir,
                     checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
+                    logging=True,
+                    device=config.device,
+                    **config.algo_config)
+    elif config.algo == "linear_mpc":
+        env_func = partial(make, config.task, **config.task_config)
+        control_agent = make(config.algo,
+                    env_func,
+                    training=True,
+                    output_dir=config.output_dir,
+                    checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
+                    logging=True,
                     device=config.device,
                     **config.algo_config)
     control_agent.reset()
@@ -86,7 +99,7 @@ def test_policy(config):
 
     """
     # Evaluation setup.
-    if config.algo == "ppo":
+    if config.algo == "ppo" or config.algo == "mpsc":
         set_device_from_config(config)
         if config.set_test_seed:
             # seed the evaluation (both controller and env) if given
@@ -124,33 +137,67 @@ def test_policy(config):
         else:
             env_seed = None
         # Define function to create task/env.
-        init_state = {'init_x': 0.1,
-            'init_x_dot': -0.5,
-            'init_theta': -0.19,
-            'init_theta_dot': -0.5
-            }
+        init_state = {'init_x': -0.5,
+                  'init_x_dot': 0.0,
+                  'init_z': 0.2,
+                  'init_z_dot': 0.0,
+                  'init_theta': 0.0,
+                  'init_theta_dot': 0.0
+                  }
         set_seed_from_config(config)
         set_device_from_config(config)
         env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
-        test_env = env_func(init_state=init_state, randomized_init=False, seed=2)
+        test_env = env_func(init_state=init_state, randomized_init=False, seed=222)
         # Create the controller/control_agent.
-        print(config.logging)
-        breakpoint()
         control_agent = make(config.algo,
-                         env_func,
-                         training=True,
-                         checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
-                         device=config.device,
-                         logging=config.logging,
-                         **config.algo_config)
+                    env_func,
+                    training=True,
+                    output_dir=config.output_dir,
+                    checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
+                    logging=True,
+                    device=config.device,
+                    **config.algo_config)
         control_agent.reset()
         # Test controller.
+        # if config.restore:
+        #     control_agent.load(os.path.join(config.restore, "model_latest.pt"))
         control_agent.learn()
         results = control_agent.run(env=test_env,
                                     max_steps=100)
+    elif config.algo == "linear_mpc":
+        set_device_from_config(config)
+        if config.set_test_seed:
+            # seed the evaluation (both controller and env) if given
+            set_seed_from_config(config)
+            env_seed = config.seed
+        else:
+            env_seed = None
+        # Define function to create task/env.
+        init_state = {'init_x': -0.2,
+                  'init_x_dot': 0.0,
+                  'init_theta': 0.0,
+                  'init_theta_dot': 0.0
+                  }
+        set_seed_from_config(config)
+        set_device_from_config(config)
+        env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
+        test_env = env_func(init_state=init_state, randomized_init=False, seed=222)
+        # Create the controller/control_agent.
+        control_agent = make(config.algo,
+                    env_func,
+                    training=True,
+                    output_dir=config.output_dir,
+                    checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
+                    logging=True,
+                    device=config.device,
+                    **config.algo_config)
+        control_agent.reset()
+        # Test controller.
+        results = control_agent.run(env=test_env,
+                                    max_steps=100)
+
     print(results)
     # Save evalution results.
-    breakpoint()
     try:
         eval_output_dir = config.eval_output_dir
     except:
@@ -164,7 +211,6 @@ def test_policy(config):
     ep_lengths = results["ep_lengths"]
     ep_returns = results["ep_returns"]
     mse = results["mse"]
-    breakpoint()
     msg = "eval_ep_length {:.2f} +/- {:.2f}\n".format(np.mean(np.array(ep_lengths)), np.std(np.array(ep_lengths)))
     msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(np.mean(np.array(ep_returns)), np.std(np.array(ep_returns)))
     msg += "eval_mse {:.3f} +/- {:.3f}\n".format(np.mean(np.array(mse)), np.std(np.array(mse)))

@@ -56,8 +56,6 @@ class MPC(BaseController):
             self.reset_constraints(self.env.constraints.constraints)
             self.additional_constraints = []
         # Model parameters
-        print(logging)
-        breakpoint()
         self.logging = logging
         self.model = self.env.symbolic
         self.dt = self.model.dt
@@ -312,8 +310,6 @@ class MPC(BaseController):
         self.x_prev = None
         self.u_prev = None
         obs, info = env.reset()
-        print("Init State:")
-        print(obs)
         ep_returns, ep_lengths = [], []
         frames = []
         self.reset_results_dict()

@@ -199,6 +199,9 @@ class LinearMPC(MPC):
             elif return_status == 'Maximum_Iterations_Exceeded':
                 self.terminate_loop = True
                 u_val = opti.debug.value(u_var)
+            else: 
+                self.terminate_loop = True 
+                return None
         # Take first one from solved action sequence.
         if u_val.ndim > 1:
             action = u_val[:, 0]

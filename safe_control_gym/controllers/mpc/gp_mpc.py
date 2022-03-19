@@ -242,19 +242,14 @@ class GPMPC(MPC):
             np.array: targets for GP training, (N, nx).
 
         """
-        print(x_seq)
-        print(x_next_seq)
         # Get the predicted dynamics. This is a linear prior, thus we need to account for the fact that
         # it is linearized about an eq using self.X_GOAL and self.U_GOAL.
         x_pred_seq = self.prior_dynamics_func(x0=x_seq.T - self.prior_ctrl.X_LIN[:, None],
                                                p=u_seq.T - self.prior_ctrl.U_LIN[:,None])['xf'].toarray()
         targets = (x_next_seq.T - (x_pred_seq+self.prior_ctrl.X_LIN[:,None])).transpose()  # (N, nx).
-        print(self.model.nx)
-        print(self.model.nu)
-        print(x_seq.shape)
+        print(x_seq[0,:].shape)
         print(u_seq.shape)
-        breakpoint()
-        inputs = np.hstack([x_seq, u_seq])  # (N, nx+nu).
+        inputs = np.hstack([np.expand_dims(x_seq[0,:], axis=0), u_seq])  # (N, nx+nu).
         return inputs, targets
 
     def precompute_probabilistic_limits(self,
@@ -560,8 +555,22 @@ class GPMPC(MPC):
             ############
             # Use Latin Hypercube Sampling to generate states withing environment bounds.
             lhs_sampler = Lhs(lhs_type='classic', criterion='maximin')
-            limits = [(self.env.INIT_STATE_RAND_INFO[key].low, self.env.INIT_STATE_RAND_INFO[key].high) for key in
-                      self.env.INIT_STATE_RAND_INFO]
+            # TO DO: this is an issue - is just reads off the keys in whatever order - doesn't correspond to order of state
+            if self.model.nx == 4:
+                limits = [(self.env.INIT_STATE_RAND_INFO['init_x'].low, self.env.INIT_STATE_RAND_INFO['init_x'].high), 
+                          (self.env.INIT_STATE_RAND_INFO['init_x_dot'].low, self.env.INIT_STATE_RAND_INFO['init_x_dot'].high),
+                          (self.env.INIT_STATE_RAND_INFO['init_theta'].low, self.env.INIT_STATE_RAND_INFO['init_theta'].high),
+                          (self.env.INIT_STATE_RAND_INFO['init_theta_dot'].low, self.env.INIT_STATE_RAND_INFO['init_theta_dot'].high)] 
+            if self.model.nx == 6:
+                limits = [(self.env.INIT_STATE_RAND_INFO['init_x'].low, self.env.INIT_STATE_RAND_INFO['init_x'].high), 
+                          (self.env.INIT_STATE_RAND_INFO['init_x_dot'].low, self.env.INIT_STATE_RAND_INFO['init_x_dot'].high),
+                          (self.env.INIT_STATE_RAND_INFO['init_z'].low, self.env.INIT_STATE_RAND_INFO['init_z'].high), 
+                          (self.env.INIT_STATE_RAND_INFO['init_z_dot'].low, self.env.INIT_STATE_RAND_INFO['init_z_dot'].high),
+                          (self.env.INIT_STATE_RAND_INFO['init_theta'].low, self.env.INIT_STATE_RAND_INFO['init_theta'].high),
+                          (self.env.INIT_STATE_RAND_INFO['init_theta_dot'].low, self.env.INIT_STATE_RAND_INFO['init_theta_dot'].high)]   
+            
+            # limits = [(self.env.INIT_STATE_RAND_INFO[key].low, self.env.INIT_STATE_RAND_INFO[key].high) for key in
+            #                                                                         self.env.INIT_STATE_RAND_INFO]
             # todo: parameterize this if we actually want it.
             num_eq_samples = 0
             samples = lhs_sampler.generate(limits,

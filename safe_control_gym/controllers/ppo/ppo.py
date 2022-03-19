@@ -229,7 +229,7 @@ class PPO(BaseController):
                 frames.append(env.render("rgb_array"))
             if verbose:
                 print("obs {} | act {}".format(obs, action))
-            if done.all():
+            if done.all(): # TO DO - change this to something that makes sense 
                 assert "episode" in info["n"][0]
                 ep_returns.append(info["n"][0]["episode"]["r"])
                 ep_lengths.append(info["n"][0]["episode"]["l"])
