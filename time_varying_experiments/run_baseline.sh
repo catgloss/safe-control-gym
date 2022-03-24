@@ -15,11 +15,11 @@
 # python3 main.py --algo linear_mpc --task cartpole --overrides ./baselines/configs/linear_mpc_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/linear_mpc_cartpole --thread 1 --func test
 
 ## MPSC
-# python3 main.py --algo mpsc --task cartpole --overrides ./baselines/configs/mpsc_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/mpsc_cartpole --thread 1 --func train
+python3 main.py --algo mpsc --task cartpole --overrides ./baselines/configs/mpsc_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/mpsc_cartpole --thread 1 --func train
 
 ## RARL 
 # python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rarl_cartpole --thread 1 --func train
 # python3 main.py --algo rarl --task quadrotor --overrides ./baselines/configs/rarl_quad.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rarl_quad --thread 1 --func train
 
 ## RAP
-python3 main.py --algo rap --task cartpole --overrides ./baselines/configs/rap_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rap_cartpole --thread 1 --func train
+# python3 main.py --algo rap --task cartpole --overrides ./baselines/configs/rap_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rap_cartpole --thread 1 --func train

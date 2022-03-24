@@ -33,7 +33,7 @@ def train(config):
     set_device_from_config(config)
     # Define function to create task/env.
     # Create the controller/control_agent.
-    if config.algo == "ppo" or config.algo == "rarl" or config.algo == "rap":
+    if config.algo == "ppo" or config.algo == "rarl" or config.algo == "rap" or config.algo == "mpsc":
         env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
         control_agent = make(config.algo,
                             env_func,
