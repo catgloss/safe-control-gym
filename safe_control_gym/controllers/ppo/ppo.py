@@ -35,15 +35,14 @@ class PPO(BaseController):
 
     def __init__(self,
                  env_func,
-                 training: bool = True,
-                 checkpoint_path: str = "results/temp/model_latest.pt",
-                 output_dir: str = "results/temp",
-                 device: str = "cpu",
-                 seed: int = 0,
+                 training=True,
+                 checkpoint_path="model_latest.pt",
+                 output_dir="temp",
+                 device="cpu",
+                 seed=0,
                  **kwargs):
         super().__init__(env_func, training, checkpoint_path, output_dir, device, seed, **kwargs)
         # Task.
-        print(output_dir)
         if self.training:
             # Training and testing.
             self.env = make_vec_envs(env_func, None, self.rollout_batch_size, self.num_workers, seed)
@@ -215,32 +214,28 @@ class PPO(BaseController):
                 
         obs, info = env.reset()
         obs = self.obs_normalizer(obs)
-        ep_returns, ep_lengths, ep_mse = [], [], []
+        ep_returns, ep_lengths = [], []
         frames = []
         while len(ep_returns) < n_episodes:
             with torch.no_grad():
                 obs = torch.FloatTensor(obs).to(self.device)
                 action = self.agent.ac.act(obs)
             obs, reward, done, info = env.step(action)
-            reward = np.asarray(np.mean(np.array(reward)))
-            
             if render:
                 env.render()
                 frames.append(env.render("rgb_array"))
             if verbose:
                 print("obs {} | act {}".format(obs, action))
-            if done.all(): # TO DO - change this to something that makes sense 
-                assert "episode" in info["n"][0]
-                ep_returns.append(info["n"][0]["episode"]["r"])
-                ep_lengths.append(info["n"][0]["episode"]["l"])
-                ep_mse.append(info["n"][0]["terminal_info"]["mse"])
-
+            if done:
+                assert "episode" in info
+                ep_returns.append(info["episode"]["r"])
+                ep_lengths.append(info["episode"]["l"])
                 obs, _ = env.reset()
             obs = self.obs_normalizer(obs)
         # Collect evaluation results.
         ep_lengths = np.asarray(ep_lengths)
         ep_returns = np.asarray(ep_returns)
-        eval_results = {"ep_returns": ep_returns, "ep_lengths": ep_lengths, "mse": ep_mse}
+        eval_results = {"ep_returns": ep_returns, "ep_lengths": ep_lengths}
         if len(frames) > 0:
             eval_results["frames"] = frames
         # Other episodic stats from evaluation env.
@@ -274,14 +269,14 @@ class PPO(BaseController):
                 if "TimeLimit.truncated" in inff and inff["TimeLimit.truncated"]:
                     terminal_obs = inf["terminal_observation"]
                     terminal_obs_tensor = torch.FloatTensor(terminal_obs).unsqueeze(0).to(self.device)
-                    terminal_val = self.agent.ac.critic(terminal_obs_tensor).squeeze().detach().numpy()
+                    terminal_val = self.agent.ac.critic(terminal_obs_tensor).squeeze().detach().cpu().numpy()
                     terminal_v[idx] = terminal_val
             rollouts.push({"obs": obs, "act": act, "rew": rew, "mask": mask, "v": v, "logp": logp, "terminal_v": terminal_v})
             obs = next_obs
         self.obs = obs
         self.total_steps += self.rollout_batch_size * self.rollout_steps
         # Learn from rollout batch.
-        last_val = self.agent.ac.critic(torch.FloatTensor(obs).to(self.device)).detach().numpy()
+        last_val = self.agent.ac.critic(torch.FloatTensor(obs).to(self.device)).detach().cpu().numpy()
         ret, adv = compute_returns_and_advantages(rollouts.rew,
                                                   rollouts.v,
                                                   rollouts.mask,

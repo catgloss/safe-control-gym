@@ -128,6 +128,8 @@ def test_policy(config):
                                     verbose=config.verbose,
                                     use_adv=config.use_adv,
                                     logging=True)
+        print(results)
+        breakpoint()
     elif config.algo == "gp_mpc":
         set_device_from_config(config)
         if config.set_test_seed:
