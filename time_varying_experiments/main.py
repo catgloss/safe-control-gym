@@ -108,12 +108,11 @@ def test_policy(config):
         else:
             env_seed = None
         # Define function to create task/env.
-
         env_func = partial(make, config.task, seed=env_seed, output_dir=config.output_dir, **config.task_config)
         # Create the controller/control_agent.
         control_agent = make(config.algo,
                             env_func,
-                            training=True,
+                            training=False,
                             checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
                             output_dir=config.output_dir,
                             device=config.device,
@@ -126,8 +125,32 @@ def test_policy(config):
         results = control_agent.run(n_episodes=config.algo_config.eval_batch_size,
                                     render=config.render,
                                     verbose=config.verbose,
-                                    use_adv=config.use_adv,
-                                    logging=True)
+                                    use_adv=config.use_adv)
+        # Save evalution results.
+        try:
+            eval_output_dir = config.eval_output_dir
+        except:
+            if config.eval_output_dir is not None:
+                eval_output_dir = config.eval_output_dir
+            else:
+                eval_output_dir = os.path.join(config.output_dir, "eval")
+        os.makedirs(eval_output_dir, exist_ok=True)
+        # test trajs and statistics 
+        eval_path = os.path.join(eval_output_dir, config.eval_output_path)
+        os.makedirs(os.path.dirname(eval_path), exist_ok=True)
+        with open(eval_path, "wb") as f:
+            pickle.dump(results, f)
+        ep_lengths = results["ep_lengths"]
+        ep_returns = results["ep_returns"]
+        mse = results["mse"]
+        msg = "eval_ep_length {:.2f} +/- {:.2f}\n".format(ep_lengths.mean(), ep_lengths.std())
+        msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(ep_returns.mean(), ep_returns.std())
+        msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
+        print(msg)
+        if "frames" in results:
+            save_video(os.path.join(eval_output_dir, "video.gif"), results["frames"])
+        control_agent.close()
+        print("Evaluation done.")
         print(results)
         breakpoint()
     elif config.algo == "gp_mpc":
