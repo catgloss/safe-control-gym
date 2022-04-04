@@ -169,7 +169,7 @@ For more information on some common utilities in this repo, refer to `safe-contr
 #### Control and Safe Control Baselines
 
 | Approach | id | Location | 
-| -------- | --- | ----------- |
+| -------- | --- | ----------- | 
 |  Linear Quadratic Regulator    | 'lqr' |   coming soon   |
 |  Iterative Linear Quadratic Regulator   | 'ilqr' |   coming soon  |
 

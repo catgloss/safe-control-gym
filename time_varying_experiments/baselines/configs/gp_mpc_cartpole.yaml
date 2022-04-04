@@ -11,10 +11,10 @@ algo_config:
   train_iterations: 800
   validation_iterations: 200
   optimization_iterations:
-    - 2000
-    - 2000
-    - 2000
-    - 2000
+    - 10
+    - 10
+    - 10
+    - 10
   learning_rate:
     - 0.01
     - 0.01
@@ -38,8 +38,6 @@ algo_config:
       b:
         - 0.0
       constrained_variable: state
-  output_dir: './trained_gp_model'
-  logging: true
   plot: true
 
 task_config:

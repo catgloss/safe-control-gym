@@ -11,11 +11,18 @@ task_config:
   normalized_rl_action_space: False
   constraints:
     - constraint_form: abs_bound
-      bound: 0.4
+      bound: 0.6
       constrained_variable: state
       active_dims: 0
-    - constraint_form: default_constraint
-      constrained_variable: input
-      upper_bounds: 0.2
+    - constraint_form: abs_bound
+      bound: 0.5
+      constrained_variable: state
+      active_dims: 2 
   done_on_violation: False
+  randomized_init: False
+  init_state: 
+    init_x: 0.5 
+    init_x_dot: 0.1
+    init_theta: -0.15
+    init_theta_dot: -0.1
 

@@ -1,6 +1,11 @@
 ## PPO CARTPOLE
 # python3 main.py --algo ppo --task cartpole --overrides ./baselines/configs/ppo_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/ppo_cartpole --thread 1 --seed 222 --func train
-python3 main.py --algo ppo --task cartpole --overrides ./baselines/configs/ppo_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/ppo_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/ppo_cartpole/seed222_Mar-26-15-32-46_v0.5.0-85-gea98146 --eval_output_dir ./ppo_eval/ppo 
+# python3 main.py --algo ppo --task cartpole --overrides ./baselines/configs/ppo_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/ppo_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/ppo_cartpole/seed222_Apr-01-18-28-13_v0.5.0-87-gcb61576 --eval_output_dir ./baselines/experiment_results/experiment_results/ppo_cartpole/seed222_Apr-01-18-28-13_v0.5.0-87-gcb61576
+# python3 main.py --algo ppo --task cartpole --overrides ./baselines/configs/ppo_cartpole.yaml --output_dir ./baselines/experiment_results/experiment_results/ppo_cartpole/seed222_Apr-03-21-44-34_v0.5.0-87-gcb61576 --thread 1 --seed 222 --func plot
+
+## PPO QUAD
+python3 main.py --algo ppo --task quadrotor --overrides ./baselines/configs/ppo_quad.yaml --output_dir ./baselines/experiment_results --tag experiment_results/ppo_quad --thread 1 --seed 222 --func train
+# python3 main.py --algo ppo --task cartpole --overrides ./baselines/configs/ppo_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/ppo_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/ppo_cartpole/seed222_Mar-26-15-32-46_v0.5.0-85-gea98146 --eval_output_dir ./baselines/experiment_results/experiment_results/ppo_cartpole/seed222_Mar-26-15-32-46_v0.5.0-85-gea98146
 # python3 main.py --algo ppo --task cartpole --overrides ./baselines/configs/ppo_cartpole.yaml --output_dir ./baselines/experiment_results/experiment_results/ppo_cartpole/seed222_Mar-26-15-32-46_v0.5.0-85-gea98146 --thread 1 --seed 222 --func plot
 
 ## GP_MPC CARTPOLE

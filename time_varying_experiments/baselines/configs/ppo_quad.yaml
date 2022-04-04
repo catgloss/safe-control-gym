@@ -1,0 +1,62 @@
+algo_config:
+  log_interval: 1000
+  save_interval: 1000
+  num_checkpoints: 10
+  eval_interval: 1000
+  eval_save_best: True 
+  tensorboard: True
+
+task_config:
+  task: traj_tracking
+  traj_type: "figure8"
+  logging: True
+  ctrl_freq: 10
+  pyb_freq: 240
+  info_in_reset: True
+  cost: quadratic
+  disturbances: null
+  constraints:
+    - constraint_form: bounded_constraint
+      constrained_variable: state
+      upper_bounds: 
+        - 0.55
+      lower_bounds: 
+        - -0.55
+      active_dims: 0
+    - constraint_form: bounded_constraint
+      constrained_variable: state
+      upper_bounds:
+        - 1.05
+      lower_bounds:
+        - -1.05
+      active_dims: 2
+  quad_type: 2
+  randomized_init: False
+  done_on_violation: False 
+  # init_state_randomization_info:
+  #   init_x:
+  #     distrib: 'uniform'
+  #     low: -0.5
+  #     high: 0.5
+  #   init_x_dot:
+  #     distrib: 'uniform'
+  #     low: -0.01
+  #     high: 0.01
+  #   init_z:
+  #     distrib: 'uniform'
+  #     low: 0.1
+  #     high: 1.5
+  #   init_z_dot:
+  #     distrib: 'uniform'
+  #     low: -0.01
+  #     high: 0.01
+  #   init_theta:
+  #     distrib: 'uniform'
+  #     low: -0.3
+  #     high: 0.3
+  #   init_theta_dot:
+  #     distrib: 'uniform'
+  #     low: -0.01
+  #     high: 0.01
+  episode_len_sec: 6
+  done_on_out_of_bound: False

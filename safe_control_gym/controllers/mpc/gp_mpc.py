@@ -247,9 +247,8 @@ class GPMPC(MPC):
         x_pred_seq = self.prior_dynamics_func(x0=x_seq.T - self.prior_ctrl.X_LIN[:, None],
                                                p=u_seq.T - self.prior_ctrl.U_LIN[:,None])['xf'].toarray()
         targets = (x_next_seq.T - (x_pred_seq+self.prior_ctrl.X_LIN[:,None])).transpose()  # (N, nx).
-        print(x_seq[0,:].shape)
-        print(u_seq.shape)
-        inputs = np.hstack([np.expand_dims(x_seq[0,:], axis=0), u_seq])  # (N, nx+nu).
+
+        inputs = np.hstack([x_seq, u_seq])  # (N, nx+nu).
         return inputs, targets
 
     def precompute_probabilistic_limits(self,
@@ -681,6 +680,9 @@ class GPMPC(MPC):
         if self.plot:
             validation_inputs, validation_targets = self.preprocess_training_data(x_seq, u_seq, x_next_seq)
             fig_count = 0
+            print("validation input shape", validation_inputs.shape)
+            print("validation target shape", validation_targets.shape)
+
             fig_count = self.gaussian_process.plot_trained_gp(torch.Tensor(validation_inputs).double(),
                                                               torch.Tensor(validation_targets).double(),
                                                               fig_count=fig_count)
