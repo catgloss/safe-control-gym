@@ -193,7 +193,7 @@ class PPO(BaseController):
     def run(self,
             env=None,
             render=False,
-            n_episodes=10,
+            n_episodes=100,
             verbose=False,
             **kwargs
             ):

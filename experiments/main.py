@@ -32,7 +32,7 @@ def train(config):
     # Define function to create task/env.
     env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
     # Create the controller/control_agent.
-    if config.algo == "ppo":
+    if config.algo == "ppo" or config.algo == "safe_explorer_ppo":
         control_agent = make(config.algo,
                             env_func,
                             training=True,

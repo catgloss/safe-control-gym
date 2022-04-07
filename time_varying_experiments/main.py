@@ -33,7 +33,7 @@ def train(config):
     set_device_from_config(config)
     # Define function to create task/env.
     # Create the controller/control_agent.
-    if config.algo == "ppo" or config.algo == "rarl" or config.algo == "rap" or config.algo == "mpsc":
+    if config.algo == "ppo" or config.algo == "rarl" or config.algo == "rap" or config.algo == "mpsc" or config.algo == "sac" or config.algo == "safe_explorer_ppo":
         env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
         control_agent = make(config.algo,
                             env_func,
@@ -42,7 +42,7 @@ def train(config):
                             output_dir=config.output_dir,
                             device=config.device,
                             **config.algo_config)
-    elif config.algo == "gp_mpc":
+    if config.algo == "gp_mpc":
         env_func = partial(make, config.task, **config.task_config)
         control_agent = make(config.algo,
                     env_func,
@@ -99,7 +99,7 @@ def test_policy(config):
 
     """
     # Evaluation setup.
-    if config.algo == "ppo" or config.algo == "mpsc":
+    if config.algo == "ppo" or config.algo == "mpsc" or config.algo == "rarl" or config.algo == "sac":
         set_device_from_config(config)
         if config.set_test_seed:
             # seed the evaluation (both controller and env) if given
@@ -122,8 +122,10 @@ def test_policy(config):
         if config.restore:
             control_agent.load(os.path.join(config.restore, "model_latest.pt"))
         # Test controller.
+        print(config.render)
+        breakpoint()
         results = control_agent.run(n_episodes=config.algo_config.eval_batch_size,
-                                    render=config.render,
+                                    render=True,
                                     verbose=config.verbose,
                                     use_adv=config.use_adv)
         # Save evalution results.
@@ -148,6 +150,7 @@ def test_policy(config):
         msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
         print(msg)
         if "frames" in results:
+            print("has frames")
             save_video(os.path.join(eval_output_dir, "video.gif"), results["frames"])
         control_agent.close()
         print("Evaluation done.")
@@ -221,13 +224,13 @@ def test_policy(config):
         results = control_agent.run(env=test_env,
                                     max_steps=100)
 
-    print(results)
     # Save evalution results.
     try:
         eval_output_dir = config.eval_output_dir
     except:
         eval_output_dir = os.path.join(config.output_dir, "eval")
     os.makedirs(eval_output_dir, exist_ok=True)
+    print(eval_output_dir)
     # test trajs and statistics 
     eval_path = os.path.join(eval_output_dir, config.eval_output_path)
     os.makedirs(os.path.dirname(eval_path), exist_ok=True)

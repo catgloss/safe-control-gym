@@ -49,8 +49,6 @@ class BenchmarkEnv(gym.Env):
     INERTIAL_PROP_RAND_INFO = None  # Dict of parameters & distributions for domain randomization.
     INIT_STATE_RAND_INFO = None  # Dict of state name & distribution info to randomize at episode reset
     TASK_INFO = None  # Dict of task related info, e.g. goal state or trajectory args.
-    ENV_SCHEDULERS = None
-    ENV_TYPES = None
 
 
     def __init__(self,
@@ -87,11 +85,13 @@ class BenchmarkEnv(gym.Env):
                  adversary_disturbance_offset=0.0,
                  adversary_disturbance_scale=0.01,
                  env_disturbance=None,
-                 env_disturbance_type="default",
-                 env_disturbance_link=-1,
-                 env_scheduler="custom",
+                 env_scheduler=None,
+                 env_disturbance_scale=0,
+                 env_disturbance_start=0,
+                 env_disturbance_sign=1,
                  env_disturbance_min = 0,
                  env_disturbance_max = 1,
+                 env_disturbance_active_dims=[],
                  **kwargs
                  ):
         """Initialization method for BenchmarkEnv.
@@ -202,11 +202,13 @@ class BenchmarkEnv(gym.Env):
         self.adversary_disturbance_scale = adversary_disturbance_scale
         # Set environment disturbance info
         self.env_disturbance = env_disturbance
-        self.env_disturbance_type = env_disturbance_type
         self.env_scheduler = env_scheduler
         self.env_disturbance_min = env_disturbance_min
         self.env_disturbance_max = env_disturbance_max
-        self.env_disturbance_link = env_disturbance_link
+        self.env_disturbance_start = env_disturbance_start
+        self.env_disturbance_sign = env_disturbance_sign
+        self.env_disturbance_scale = env_disturbance_scale
+        self.env_disturbance_active_dims = env_disturbance_active_dims
         self._setup_disturbances()
         # Default seed None means pure randomness/no seeding.
         self.seed(seed)
@@ -325,10 +327,9 @@ class BenchmarkEnv(gym.Env):
             # Adversary obs are the same as those of the protagonist.
             self.adversary_observation_space = self.observation_space
         if self.env_disturbance is not None:
-            assert self.env_disturbance in self.DISTURBANCE_MODES, "[ERROR] in Cartpole._setup_disturbances()"
-            shared_args = self.DISTURBANCE_MODES[self.env_disturbance]
+            shared_args = self.DISTURBANCE_MODES[self.adversary_disturbance]
             dim = shared_args["dim"]
-            self.env_action_space = spaces.Box(low=self.env_disturbance_min, high=self.env_disturbance_max, shape=(dim,))
+            self._setup_env_disturbances(dim)
 
     def _setup_constraints(self):
         """Creates a list of constraints as an attribute."""
@@ -337,6 +338,19 @@ class BenchmarkEnv(gym.Env):
         if self.CONSTRAINTS is not None:
             self.constraints = create_constraint_list(self.CONSTRAINTS, self.AVAILABLE_CONSTRAINTS, self)
             self.num_constraints = self.constraints.num_constraints
+    
+    def _setup_env_disturbances(self, dim):
+        assert self.env_disturbance in self.DISTURBANCE_MODES, "[ERROR] in Cartpole._setup_disturbances()"
+        if self.env_disturbance_active_dims is not None:
+            if isinstance(self.env_disturbance_active_dims, int):
+                self.env_disturbance_active_dims = [self.env_disturbance_active_dims]
+            assert isinstance(self.env_disturbance_active_dims, (list, np.ndarray)), '[ERROR] active_dims is not a list/array.'
+            assert (len(self.env_disturbance_active_dims) <= dim), '[ERROR] more active_dim than constrainable dim'
+            assert all(isinstance(n, int) for n in self.env_disturbance_active_dims), '[ERROR] non-integer active_dim.'
+            assert all((n < dim) for n in self.env_disturbance_active_dims), '[ERROR] active_dim not stricly smaller than dim.'
+            assert (len(self.env_disturbance_active_dims) == len(set(self.env_disturbance_active_dims))), '[ERROR] duplicates in active_dim'
+            self.env_disturbance_dim = len(self.env_disturbance_active_dims)
+            self.env_action = np.zeros(shape=(dim,))
 
     def _set_action_space(self):
         """Defines the action space of the environment.

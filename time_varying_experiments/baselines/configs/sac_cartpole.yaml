@@ -42,11 +42,3 @@ task_config:
   #     distrib: 'uniform'
   #     low: -0.25
   #     high: 0.25
-  env_disturbance: dynamics
-  env_scheduler: cyclic
-  env_disturbance_active_dims: [0,1]
-  env_disturbance_start: [1,0]
-  env_disturbance_sign: [-1,1]
-  env_disturbance_max: [1, 1]
-  env_disturbance_min: [0,-1]
-  env_disturbance_scale: [0.1, 0.1]

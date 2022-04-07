@@ -121,8 +121,7 @@ class CartPole(BenchmarkEnv):
         "trajectory_scale": 0.2
     }
 
-    ENV_TYPES = ["default", "custom", "friction", "bumps"]
-    ENV_SCHEDULERS = ["constant", "random_walk", "uniform"]
+    ENV_SCHEDULERS = ["cyclic", "saw"]
 
     def __init__(self,
                  init_state=None,
@@ -484,8 +483,27 @@ class CartPole(BenchmarkEnv):
         force = force[0]
         return force
     def _get_env_disturbance(self):
+        # Based on implementation in realworldrl suite: https://github.com/google-research/realworldrl_suite/tree/be7a51cffa7f5f9cb77a387c16bad209e0f851f8
         scheduler = self.env_scheduler 
-        type = self.env_disturbance_type
+        assert scheduler in self.ENV_SCHEDULERS, "the scheduler must be either cyclic or saw wave"
+        delta = np.zeros((self.env_disturbance_dim,))
+        for i, dim in enumerate(self.env_disturbance_active_dims):
+            delta[dim] = np.random.normal(scale=self.env_scale[i],size=self.env_action.shape)
+
+            if scheduler == "cyclic": 
+                self.env_action[dim]  += abs(delta[dim])
+                if self.env_action_sign[i] == -1: 
+                    if np.self.env_action[i] <= -(self.env_action_max[i]):
+                        self.env_action[dim] = self.env_action_start[i]
+                elif self.env_action_sign[i] == 1:
+                    if self.env_action[dim] >= self.env_action_max[i]:
+                        self.env_action[dim] = self.env_action_start[i]
+            if scheduler == "saw": 
+                self.env_action[dim] = self.env_action_sign[i] * abs(delta[dim])
+                if ((self.env_action[dim] >= self.env_action_max[i])) or (self.env_action[dim] <= -(self.env_action_min[i])):
+                    self.env_action_sign[i] *= -1.
+        return self.env_action
+
 
     def _advance_simulation(self, force):
         """Apply the commanded forces and adversarial actions to the cartpole.
@@ -510,7 +528,6 @@ class CartPole(BenchmarkEnv):
             # Clear adversary's action, wait for the next one.
             self.adv_action = None
         if env_disturb:
-
             tab_force = tab_force + self._get_env_disturbance()
         for _ in range(self.PYB_STEPS_PER_CTRL):
             # apply disturbance (by tabbing pole on x-z plane).
