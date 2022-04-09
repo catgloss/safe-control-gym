@@ -163,10 +163,6 @@ class SafetyLayer:
             g_i = g[i]  # (B,A)
             c_i = c[:, i]  # (B,)
             # (B,1,A)x(B,A,1) -> (B,1,1) -> (B,)
-            print(g_i.unsqueeze(1).shape)
-            print(act.unsqueeze(2).shape)
-            print(self.slack)
-            print(i)
             numer = torch.bmm(g_i.unsqueeze(1),
                               act.unsqueeze(2)).view(-1) + c_i + self.slack[i]
             denomin = torch.bmm(g_i.unsqueeze(1),

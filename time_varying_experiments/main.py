@@ -99,7 +99,7 @@ def test_policy(config):
 
     """
     # Evaluation setup.
-    if config.algo == "ppo" or config.algo == "mpsc" or config.algo == "rarl" or config.algo == "sac":
+    if config.algo == "ppo" or config.algo == "mpsc" or config.algo == "rarl" or config.algo == "sac" or config.algo == "safe_explorer_ppo":
         set_device_from_config(config)
         if config.set_test_seed:
             # seed the evaluation (both controller and env) if given
@@ -186,42 +186,9 @@ def test_policy(config):
                     device=config.device,
                     **config.algo_config)
         control_agent.reset()
-        # Test controller.
-        # if config.restore:
-        #     control_agent.load(os.path.join(config.restore, "model_latest.pt"))
         control_agent.learn()
         results = control_agent.run(env=test_env,
-                                    max_steps=100)
-    elif config.algo == "linear_mpc":
-        set_device_from_config(config)
-        if config.set_test_seed:
-            # seed the evaluation (both controller and env) if given
-            set_seed_from_config(config)
-            env_seed = config.seed
-        else:
-            env_seed = None
-        # Define function to create task/env.
-        init_state = {'init_x': -0.2,
-                  'init_x_dot': 0.0,
-                  'init_theta': 0.0,
-                  'init_theta_dot': 0.0
-                  }
-        set_seed_from_config(config)
-        set_device_from_config(config)
-        env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
-        test_env = env_func(init_state=init_state, randomized_init=False, seed=222)
-        # Create the controller/control_agent.
-        control_agent = make(config.algo,
-                    env_func,
-                    training=True,
-                    output_dir=config.output_dir,
-                    checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
-                    logging=True,
-                    device=config.device,
-                    **config.algo_config)
-        control_agent.reset()
-        # Test controller.
-        results = control_agent.run(env=test_env,
+                                    render=True,
                                     max_steps=100)
 
     # Save evalution results.

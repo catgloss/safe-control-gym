@@ -292,7 +292,7 @@ class MPC(BaseController):
 
     def run(self,
             env=None,
-            render=False,
+            render=True,
             max_steps=100
             ):
         """Runs evaluation with current policy.

@@ -482,6 +482,7 @@ class CartPole(BenchmarkEnv):
         # Only use the scalar value.
         force = force[0]
         return force
+        
     def _get_env_disturbance(self):
         # Based on implementation in realworldrl suite: https://github.com/google-research/realworldrl_suite/tree/be7a51cffa7f5f9cb77a387c16bad209e0f851f8
         scheduler = self.env_scheduler 

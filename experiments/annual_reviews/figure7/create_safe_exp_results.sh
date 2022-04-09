@@ -18,25 +18,25 @@ CONFIG_PATH_ROOT="./config_overrides"
 seeds=(2 22 222 2222 22222 9 90 998 9999 90001)
 thread=1
 
-# PPO.
-TAG="ppo"
-CONFIG_PATH="${CONFIG_PATH_ROOT}/ppo_cartpole.yaml"
-for seed in "${seeds[@]}"
-do
-    python3 ../../main.py --algo ppo --task cartpole --overrides $CONFIG_PATH --output_dir ${OUTPUT_DIR} --tag $TAG_ROOT/$TAG --thread $thread --seed $seed
-done 
+# # PPO.
+# TAG="ppo"
+# CONFIG_PATH="${CONFIG_PATH_ROOT}/ppo_cartpole.yaml"
+# for seed in "${seeds[@]}"
+# do
+#     python3 ../../main.py --algo ppo --task cartpole --overrides $CONFIG_PATH --output_dir ${OUTPUT_DIR} --tag $TAG_ROOT/$TAG --thread $thread --seed $seed
+# done 
 
-# PPO with reward shaping.
-TAG="ppo_rs"
-CONFIG_PATH="${CONFIG_PATH_ROOT}/ppo_rs_cartpole.yaml"
-tolerances=(0.15 0.2)
-for tolerance in "${tolerances[@]}"
-do
-    for seed in "${seeds[@]}"
-    do
-        python3 ../../main.py --algo ppo --task cartpole --overrides $CONFIG_PATH --output_dir ${OUTPUT_DIR} --tag $TAG_ROOT/${TAG}_${tolerance} --kv_overrides task_config.constraints="[{'constraint_form':'abs_bound','bound':0.4,'constrained_variable':'state','active_dims':0,'tolerance':$tolerance}]" --thread $thread --seed $seed
-    done 
-done
+# # PPO with reward shaping.
+# TAG="ppo_rs"
+# CONFIG_PATH="${CONFIG_PATH_ROOT}/ppo_rs_cartpole.yaml"
+# tolerances=(0.15 0.2)
+# for tolerance in "${tolerances[@]}"
+# do
+#     for seed in "${seeds[@]}"
+#     do
+#         python3 ../../main.py --algo ppo --task cartpole --overrides $CONFIG_PATH --output_dir ${OUTPUT_DIR} --tag $TAG_ROOT/${TAG}_${tolerance} --kv_overrides task_config.constraints="[{'constraint_form':'abs_bound','bound':0.4,'constrained_variable':'state','active_dims':0,'tolerance':$tolerance}]" --thread $thread --seed $seed
+#     done 
+# done
 
 # Safe Explorer pre-training.
 TAG="safe_exp_pretrain"

@@ -1,5 +1,6 @@
+seed: 1234
 algo_config:
-  seed: 5309287 #6314
+  seed: 1234
   horizon: 10
   r_mpc:
     - 0.1
@@ -11,12 +12,13 @@ algo_config:
     - 1
     - 1
     - 1
-  train_iterations: 150
-  validation_iterations: 1
+  gp_model_path: null
+  train_iterations: 800
+  validation_iterations: 200
   optimization_iterations:
-    - 2000
-    - 2000
-    - 2000
+    - 1000
+    - 1500
+    - 1000
     - 2000
     - 2000
     - 2000
@@ -29,10 +31,13 @@ algo_config:
     - 0.01
   normalize_training_data: False
   use_gpu: false
-  inertial_prop: null
+  plot: True
+  inertial_prop:
+    - 0.027
+    - 0.000014
   prior_param_coeff: 1.5
   prob: 0.955
-  initial_rollout_std: 0.001
+  initial_rollout_std: 0.005
   warmstart: True
   gp_approx: 'mean_eq'
   sparse_gp: false
@@ -40,9 +45,9 @@ algo_config:
   additional_constraints:
     - constraint_form: linear_constraint
       A:
-        - [ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ]
+        - [ -1.0, 0.0, 1.0, 0.0, 0.0, 0.0 ]
       b:
-        - 1.0
+        - 1.1
       constrained_variable: state
   input_mask:
     - 0
@@ -61,50 +66,55 @@ algo_config:
     - 4
     - 5
 
-seed: 79123 #9078
 task_config:
-  logging: True
   ctrl_freq: 10
   pyb_freq: 240
   info_in_reset: True
   cost: quadratic
-  disturbances: null
   constraints:
-    - constraint_form: default_constraint
-      constrained_variable: state
     - constraint_form: default_constraint
       constrained_variable: input
       upper_bounds:
         - 0.2
         - 0.2
-  quad_type: 2
-  randomized_init: False
-  done_on_violation: False 
+    - constraint_form: bounded_constraint
+      constrained_variable: state
+      upper_bounds: 
+        - 1.1
+      lower_bounds: 
+        - -1.1
+      active_dims: 0
+    - constraint_form: bounded_constraint
+      constrained_variable: state
+      upper_bounds:
+        - 1.1
+      lower_bounds:
+        - 0.0
+      active_dims: 2
+  done_on_violation: True
+  disturbances: null
   init_state_randomization_info:
     init_x:
       distrib: 'uniform'
-      low: -0.5
-      high: 0.5
+      low: -1.0
+      high: 1.0
     init_x_dot:
-      distrib: 'uniform'
-      low: -0.01
-      high: 0.01
-    init_z:
-      distrib: 'uniform'
-      low: 0.1
-      high: 1.5
-    init_z_dot:
-      distrib: 'uniform'
-      low: -0.01
-      high: 0.01
-    init_theta:
       distrib: 'uniform'
       low: -0.3
       high: 0.3
+    init_z:
+      distrib: 'uniform'
+      low: 0.1
+      high: 1.0
+    init_z_dot:
+      distrib: 'uniform'
+      low: -0.2
+      high: 0.3
+    init_theta:
+      distrib: 'uniform'
+      low: -0.2
+      high: 0.2
     init_theta_dot:
       distrib: 'uniform'
-      low: -0.01
-      high: 0.01
-  task: traj_tracking
-  episode_len_sec: 6
-  done_on_out_of_bound: False
+      low: -0.1
+      high: 0.1

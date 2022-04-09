@@ -594,6 +594,9 @@ class GPMPC(MPC):
             for i in range(self.train_iterations + self.validation_iterations):
                 # For random initial state training.
                 init_state = init_state_samples[i,:]
+                # print(init_state)
+                # print(limits)
+                # breakpoint()
                 # Collect data with prior controller.
                 run_env = self.env_func(init_state=init_state, randomized_init=False, seed=int(seeds[i]))
                 episode_results = self.prior_ctrl.run(env=run_env, max_steps=1)
@@ -680,8 +683,6 @@ class GPMPC(MPC):
         if self.plot:
             validation_inputs, validation_targets = self.preprocess_training_data(x_seq, u_seq, x_next_seq)
             fig_count = 0
-            print("validation input shape", validation_inputs.shape)
-            print("validation target shape", validation_targets.shape)
 
             fig_count = self.gaussian_process.plot_trained_gp(torch.Tensor(validation_inputs).double(),
                                                               torch.Tensor(validation_targets).double(),
