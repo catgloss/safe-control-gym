@@ -485,24 +485,22 @@ class CartPole(BenchmarkEnv):
         
     def _get_env_disturbance(self):
         # Based on implementation in realworldrl suite: https://github.com/google-research/realworldrl_suite/tree/be7a51cffa7f5f9cb77a387c16bad209e0f851f8
-        scheduler = self.env_scheduler 
+        scheduler = self.env_disturbance["scheduler"] 
         assert scheduler in self.ENV_SCHEDULERS, "the scheduler must be either cyclic or saw wave"
-        delta = np.zeros((self.env_disturbance_dim,))
-        for i, dim in enumerate(self.env_disturbance_active_dims):
-            delta[dim] = np.random.normal(scale=self.env_scale[i],size=self.env_action.shape)
-
+        for i, dim in enumerate(self.env_disturbance["active_dims"]):
+            delta = np.random.normal(scale=self.env_disturbance["std"][i])
             if scheduler == "cyclic": 
-                self.env_action[dim]  += abs(delta[dim])
-                if self.env_action_sign[i] == -1: 
-                    if np.self.env_action[i] <= -(self.env_action_max[i]):
-                        self.env_action[dim] = self.env_action_start[i]
-                elif self.env_action_sign[i] == 1:
-                    if self.env_action[dim] >= self.env_action_max[i]:
-                        self.env_action[dim] = self.env_action_start[i]
+                self.env_action[dim]  += abs(delta)
+                if self.env_disturbance["sign"][i] == -1: 
+                    if self.env_action[dim] <= -(self.env_disturbance["max"][i]):
+                        self.env_action[dim] = self.env_disturbance["start"][i]
+                elif self.env_disturbance["sign"][i] == 1:
+                    if self.env_action[dim] >= self.env_disturbance["max"][i]:
+                        self.env_action[dim] = self.env_disturbance["start"][i]
             if scheduler == "saw": 
-                self.env_action[dim] = self.env_action_sign[i] * abs(delta[dim])
-                if ((self.env_action[dim] >= self.env_action_max[i])) or (self.env_action[dim] <= -(self.env_action_min[i])):
-                    self.env_action_sign[i] *= -1.
+                self.env_action[dim] = self.env_disturbance["sign"][i] * abs(delta)
+                if ((self.env_action[dim] >= self.env_disturbance["max"][i])) or (self.env_action[dim] <= -(self.env_disturbance["min"][i])):
+                    self.env_disturbance["sign"][i] *= -1.
         return self.env_action
 
 
@@ -519,8 +517,9 @@ class CartPole(BenchmarkEnv):
         # Determine the disturbance force.
         passive_disturb = "dynamics" in self.disturbances
         adv_disturb = self.adversary_disturbance == "dynamics"
-        env_disturb = self.env_disturbance == "dynamics"
-        if passive_disturb or adv_disturb:
+
+        env_disturb = self.env_disturbance is not None and self.env_disturbance["variable"] == "dynamics"
+        if passive_disturb or adv_disturb or env_disturb:
             tab_force = np.zeros(2)
         if passive_disturb:
             tab_force = self.disturbances["dynamics"].apply(tab_force, self)

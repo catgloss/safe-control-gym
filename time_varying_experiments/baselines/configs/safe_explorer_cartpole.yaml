@@ -22,27 +22,37 @@ task_config:
       constrained_variable: state
       active_dims: 2 
   done_on_violation: False
-  init_state: 
-    init_x: 0.7
-    init_x_dot: 1.0
-    init_theta: 0.45
-    init_theta_dot: -0.3
-  # randomized_init: True
-  # init_state_randomization_info:
-  #   init_x:
-  #     distrib: 'uniform'
-  #     low: -0.5
-  #     high: 0.5
-  #   init_x_dot:
-  #     distrib: 'uniform'
-  #     low: -0.75
-  #     high: 0.75
-  #   init_theta:
-  #     distrib: 'uniform'
-  #     low: -0.5
-  #     high: 0.5
-  #   init_theta_dot:
-  #     distrib: 'uniform'
-  #     low: -0.25
-  #     high: 0.25
+#  init_state: 
+#     init_x: 0.55
+#     init_x_dot: 0.5
+#     init_theta: 0.30
+#     init_theta_dot: -0.1
+#   randomized_init: False
+  init_state_randomization_info:
+    init_x:
+      distrib: 'uniform'
+      low: -0.5
+      high: 0.5
+    init_x_dot:
+      distrib: 'uniform'
+      low: -0.5
+      high: 0.5
+    init_theta:
+      distrib: 'uniform'
+      low: -0.35
+      high: 0.35
+    init_theta_dot:
+      distrib: 'uniform'
+      low: -0.15
+      high: 0.15
+  # env_disturbance: 
+  #   variable: dynamics
+  #   scheduler: cyclic
+  #   active_dims: [0,1]
+  #   start: [1,0]
+  #   sign: [-1,1]
+  #   max: [1, 1]
+  #   min: [0,-1]
+  #   scale: [0.1, 0.1]
+  #   std: [0.01, 0.01]
 

@@ -108,6 +108,8 @@ def test_policy(config):
         else:
             env_seed = None
         # Define function to create task/env.
+        print(env_seed)
+        breakpoint()
         env_func = partial(make, config.task, seed=env_seed, output_dir=config.output_dir, **config.task_config)
         # Create the controller/control_agent.
         control_agent = make(config.algo,
@@ -154,8 +156,6 @@ def test_policy(config):
             save_video(os.path.join(eval_output_dir, "video.gif"), results["frames"])
         control_agent.close()
         print("Evaluation done.")
-        print(results)
-        breakpoint()
     elif config.algo == "gp_mpc":
         set_device_from_config(config)
         if config.set_test_seed:
