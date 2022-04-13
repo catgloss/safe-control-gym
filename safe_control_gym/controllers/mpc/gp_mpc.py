@@ -592,11 +592,11 @@ class GPMPC(MPC):
             input_samples = np.array(input_samples) # not being used currently
             seeds = self.env.np_random.randint(0,99999, size=self.train_iterations + self.validation_iterations)
             for i in range(self.train_iterations + self.validation_iterations):
+
                 # For random initial state training.
                 init_state = init_state_samples[i,:]
-                # print(init_state)
-                # print(limits)
-                # breakpoint()
+                print("init_state:", init_state)
+                print("limits:", limits)
                 # Collect data with prior controller.
                 run_env = self.env_func(init_state=init_state, randomized_init=False, seed=int(seeds[i]))
                 episode_results = self.prior_ctrl.run(env=run_env, max_steps=1)

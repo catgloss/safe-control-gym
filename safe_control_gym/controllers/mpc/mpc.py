@@ -323,7 +323,9 @@ class MPC(BaseController):
             raise("Undefined Task")
         self.terminate_loop = False
         while np.linalg.norm(obs - env.X_GOAL) > 1e-3 and i < MAX_STEPS and not(self.terminate_loop):
+            print(obs)
             action = self.select_action(obs)
+            print(action)
             if self.terminate_loop:
                 print("Infeasible MPC Problem")
                 break
@@ -342,6 +344,7 @@ class MPC(BaseController):
             print(info)
             print()
             if render:
+                print("getting frame")
                 env.render()
                 frames.append(env.render("rgb_array"))
             i += 1
