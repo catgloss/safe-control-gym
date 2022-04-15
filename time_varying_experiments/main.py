@@ -27,6 +27,9 @@ def train(config):
 
     """
     # Experiment setup.
+    config.task_config.disturbances.dynamics[0].std = config.noise
+    print(config.task_config.disturbances.dynamics[0].std)
+    breakpoint()
     if not config.restore:
         set_dir_from_config(config)
     set_seed_from_config(config)
@@ -108,6 +111,7 @@ def test_policy(config):
         else:
             env_seed = None
         # Define function to create task/env.
+        config.task_config.disturbances.dynamics[0].std = config.noise
         print(env_seed)
         breakpoint()
         env_func = partial(make, config.task, seed=env_seed, output_dir=config.output_dir, **config.task_config)
@@ -174,6 +178,8 @@ def test_policy(config):
                   }
         set_seed_from_config(config)
         set_device_from_config(config)
+        config.disturbances.dynamics[0].std = config.noise
+        print(config.disturbances.dynamics[0].std)
         env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
         test_env = env_func(init_state=init_state, randomized_init=False, seed=222)
         # Create the controller/control_agent.
@@ -229,6 +235,7 @@ if __name__ == "__main__":
     fac.add_argument("--set_test_seed", action="store_true", help="if to set seed when testing policy.")
     fac.add_argument("--eval_output_dir", type=str, help="folder path to save evaluation results.")
     fac.add_argument("--eval_output_path", type=str, default="test_results.pkl", help="file path to save evaluation results.")
+    fac.add_argument("--noise", type=float, default=0.15, help="" )
     config = fac.merge()
     # System settings.
     if config.thread > 0:

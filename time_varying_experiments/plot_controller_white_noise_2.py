@@ -97,8 +97,8 @@ def test_policy(config):
         # test trajs and statistics 
         eval_path = os.path.join(eval_output_dir, config.eval_output_path)
         os.makedirs(os.path.dirname(eval_path), exist_ok=True)
-        # with open(eval_path, "wb") as f:
-        #     pickle.dump(results, f)
+        with open(eval_path, "wb") as f:
+            pickle.dump(results, f)
         ep_lengths = results["ep_lengths"]
         ep_returns = results["ep_returns"]
         mse = results["mse"]
@@ -113,26 +113,25 @@ def test_policy(config):
     return [ep_lengths, ep_returns, mse]
 
 def plot_results(config):
-    noise = [0.05, 0.1, 0.15, 0.2, 0.25]
+    noise = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45]
     fig, ax = plt.subplots()
     y = np.zeros((len(noise),1))
     x = np.asarray(noise)
-    for test_n in noise:
-        for i,n in enumerate(noise):
-            config.restore = os.path.join("./baselines/experiment_results/experiment_results/rarl_cartpole", "wwn_" + str(test_n))
-            config.output_dir = os.path.join("./baselines/experiment_results/experiment_results/rarl_cartpole", "wwn_" + str(n))
-            config.task_config.disturbances.dynamics[0].std = n 
-            config.eval_output_dir = os.path.join(config.output_dir, "test_with_"+str(test_n))
-            [ep_lengths, ep_returns, mse] = test_policy(config)
-            y[i] = np.mean(np.array(mse))
-            print(np.mean(np.array(mse)))
-        ax.plot(x, y, label="trained on" + str(test_n))
-        name = "RARL NOISE vs. COST (comparison)"
-        plt.title(name)
-        plt.xlabel("sigma")
-        plt.ylabel("Cost")
-        ax.legend(loc='upper left', frameon=False)
-        plt.savefig("noise_comparison_plot" + ".jpg")
+    for i,n in enumerate(noise):
+        config.restore = os.path.join("./baselines/experiment_results/experiment_results/rarl_cartpole", "wwn_" + str(n))
+        config.output_dir = os.path.join("./baselines/experiment_results/experiment_results/rarl_cartpole", "wwn_" + str(n))
+        config.task_config.disturbances.dynamics[0].std = n 
+        config.eval_output_dir = config.output_dir
+        [ep_lengths, ep_returns, mse] = test_policy(config)
+        y[i] = np.mean(np.array(mse))
+        print(np.mean(np.array(mse)))
+    ax.plot(x, y, label=str(n))
+    name = "RARL NOISE vs. COST"
+    plt.title(name)
+    plt.xlabel("sigma")
+    plt.ylabel("Cost")
+    ax.legend(loc='upper left', frameon=False)
+    plt.savefig("rarl_plot_2" + ".jpg")
 
 
 MAIN_FUNCS = {"test": plot_results}

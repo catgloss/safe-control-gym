@@ -1,5 +1,5 @@
 #!/bin/bash
-OUTPUT_DIR="seed-_Apr-10-10-33-47_v0.5.0-101-g64eece7"
+OUTPUT_DIR="with_white_noise_0.15"
 ## PPO CARTPOLE
 # python3 main.py --algo ppo --task cartpole --overrides ./baselines/configs/ppo_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/ppo_cartpole --thread 1 --seed 222 --func train
 # python3 main.py --algo ppo --task cartpole --overrides ./baselines/configs/ppo_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/ppo_cartpole --thread 1 --seed 2222 --func test --restore ./baselines/experiment_results/experiment_results/ppo_cartpole/$OUTPUT_DIR --eval_output_dir ./baselines/experiment_results/experiment_results/ppo_cartpole/$OUTPUT_DIR 
@@ -20,7 +20,7 @@ OUTPUT_DIR="seed-_Apr-10-10-33-47_v0.5.0-101-g64eece7"
 
 ## RARL CARTPOLE
 # python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rarl_cartpole --thread 1 --func train
-# python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rarl_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/rarl_cartpole/$OUTPUT_DIR --eval_output_dir ./baselines/experiment_results/experiment_results/rarl_cartpole/$OUTPUT_DIR
+# python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rarl_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/rarl_cartpole/seed-_Apr-13-22-40-08_v0.5.0-103-g49e85fd --eval_output_dir ./baselines/experiment_results/experiment_results/rarl_cartpole/seed-_Apr-13-22-40-08_v0.5.0-103-g49e85fd
 # python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results/experiment_results/rarl_cartpole/$OUTPUT_DIR --tag experiment_results/rarl_cartpole --thread 1 --func plot
 
 ## RARL QUAD
@@ -29,11 +29,18 @@ OUTPUT_DIR="seed-_Apr-10-10-33-47_v0.5.0-101-g64eece7"
 # python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results/experiment_results/rarl_cartpole/seed-_Apr-04-23-07-36_v0.5.0-96-g475df85 --tag experiment_results/rarl_cartpole --thread 1 --func plot
 
 ## Safe Explorer 
-python3 main.py --algo sac --task cartpole --overrides ./baselines/configs/sac_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/sac_cartpole --thread 1 --func train
+# python3 main.py --algo sac --task cartpole --overrides ./baselines/configs/sac_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/sac_cartpole --thread 1 --func train
 # python3 main.py --algo sac --task cartpole --overrides ./baselines/configs/sac_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/sac_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/sac_cartpole/seed-_Apr-04-23-56-42_v0.5.0-96-g475df85 --eval_output_dir ./baselines/experiment_results/experiment_results/sac_cartpole/seed-_Apr-04-23-56-42_v0.5.0-96-g475df85
 # python3 main.py --algo sac --task cartpole --overrides ./baselines/configs/sac_cartpole.yaml --output_dir ./baselines/experiment_results/experiment_results/sac_cartpole/seed-_Apr-04-23-56-42_v0.5.0-96-g475df85 --tag experiment_results/sac_cartpole --thread 1 --func plot
 
 ## Safe PPO CARTPOLE
 # python3 main.py --algo safe_explorer_ppo --task cartpole --overrides ./baselines/configs/safe_explorer_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/safe_explorer_cartpole --thread 1 --seed 222 --func train
-# python3 main.py --algo safe_explorer_ppo --task cartpole --overrides ./baselines/configs/safe_explorer_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/safe_explorer_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/safe_explorer_cartpole/seed222_Apr-06-20-51-29_v0.5.0-100-g49a7475 --eval_output_dir ./baselines/experiment_results/experiment_results/safe_explorer_cartpole/seed222_Apr-06-20-51-29_v0.5.0-100-g49a7475
-# python3 main.py --algo safe_explorer_ppo --task cartpole --overrides ./baselines/configs/safe_explorer_cartpole.yaml --output_dir ./baselines/experiment_results/experiment_results/safe_explorer_cartpole/seed222_Apr-06-20-51-29_v0.5.0-100-g49a7475 --thread 1 --seed 222 --func plot
+# python3 main.py --algo safe_explorer_ppo --task cartpole --overrides ./baselines/configs/safe_explorer_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/safe_explorer_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/safe_explorer_cartpole/$OUTPUT_DIR --eval_output_dir ./baselines/experiment_results/experiment_results/safe_explorer_cartpole/$OUTPUT_DIR
+# python3 main.py --algo safe_explorer_ppo --task cartpole --overrides ./baselines/configs/safe_explorer_cartpole.yaml --output_dir ./baselines/experiment_results/experiment_results/safe_explorer_cartpole/$OUTPUT_DIR --thread 1 --seed 222 --func plot
+
+noises=(0.4)
+
+for noise in "${noises[@]}"
+do
+   python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rarl_cartpole --thread 1 --func train --noise $noise
+done 
