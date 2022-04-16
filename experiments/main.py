@@ -109,14 +109,8 @@ def test_policy(config):
                                 verbose=config.verbose,
                                 use_adv=config.use_adv)
     # Save evalution results.
-    breakpoint()
-    try:
+    if config.eval_output_dir is not None and config.eval_output_dir:
         eval_output_dir = config.eval_output_dir
-    except:
-        if config.eval_output_dir is not None:
-            eval_output_dir = config.eval_output_dir
-        else:
-            eval_output_dir = os.path.join(config.output_dir, "eval")
     os.makedirs(eval_output_dir, exist_ok=True)
     # test trajs and statistics 
     eval_path = os.path.join(eval_output_dir, config.eval_output_path)
@@ -125,10 +119,8 @@ def test_policy(config):
         pickle.dump(results, f)
     ep_lengths = results["ep_lengths"]
     ep_returns = results["ep_returns"]
-    mse = results["mse"]
     msg = "eval_ep_length {:.2f} +/- {:.2f}\n".format(ep_lengths.mean(), ep_lengths.std())
     msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(ep_returns.mean(), ep_returns.std())
-    msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
     print(msg)
     if "frames" in results:
         save_video(os.path.join(eval_output_dir, "video.gif"), results["frames"])
@@ -148,7 +140,7 @@ if __name__ == "__main__":
     fac.add_argument("--verbose", action="store_true", help="if to print states & actions in policy test.")
     fac.add_argument("--use_adv", action="store_true", help="if to evaluate against adversary.")
     fac.add_argument("--set_test_seed", action="store_true", help="if to set seed when testing policy.")
-    fac.add_argument("--eval_output_dir", type=str, help="folder path to save evaluation results.")
+    fac.add_argument("--eval_output_dir", type=str, default="", help="folder path to save evaluation results.")
     fac.add_argument("--eval_output_path", type=str, default="test_results.pkl", help="file path to save evaluation results.")
     config = fac.merge()
     # System settings.

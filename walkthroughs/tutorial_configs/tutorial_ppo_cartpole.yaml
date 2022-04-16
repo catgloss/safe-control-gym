@@ -15,5 +15,3 @@ task_config:
       constrained_variable: state
       active_dims: 0
   done_on_violation: True
-  disturbances: null
-
