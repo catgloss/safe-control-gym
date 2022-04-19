@@ -486,21 +486,27 @@ class CartPole(BenchmarkEnv):
     def _get_env_disturbance(self):
         # Based on implementation in realworldrl suite: https://github.com/google-research/realworldrl_suite/tree/be7a51cffa7f5f9cb77a387c16bad209e0f851f8
         scheduler = self.env_disturbance["scheduler"] 
+        # print("scheduler: ", scheduler)
         assert scheduler in self.ENV_SCHEDULERS, "the scheduler must be either cyclic or saw wave"
         for i, dim in enumerate(self.env_disturbance["active_dims"]):
             delta = np.random.normal(scale=self.env_disturbance["std"][i])
+            # print("delta: ", delta)
+            # print(dim)
             if scheduler == "cyclic": 
-                self.env_action[dim]  += abs(delta)
                 if self.env_disturbance["sign"][i] == -1: 
-                    if self.env_action[dim] <= -(self.env_disturbance["max"][i]):
+                    self.env_action[dim]  -= abs(delta)
+                    if self.env_action[dim] <= (self.env_disturbance["min"][i]):
                         self.env_action[dim] = self.env_disturbance["start"][i]
                 elif self.env_disturbance["sign"][i] == 1:
+                    self.env_action[dim]  += abs(delta)
                     if self.env_action[dim] >= self.env_disturbance["max"][i]:
                         self.env_action[dim] = self.env_disturbance["start"][i]
             if scheduler == "saw": 
                 self.env_action[dim] = self.env_disturbance["sign"][i] * abs(delta)
                 if ((self.env_action[dim] >= self.env_disturbance["max"][i])) or (self.env_action[dim] <= -(self.env_disturbance["min"][i])):
                     self.env_disturbance["sign"][i] *= -1.
+            # print(self.env_action)
+        # breakpoint()
         return self.env_action
 
 

@@ -113,25 +113,27 @@ def test_policy(config):
     return [ep_lengths, ep_returns, mse]
 
 def plot_results(config):
-    noise = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45]
+    noise = {"wwn_0.05":0.05, "wwn_0.1":0.1, "wwn_0.15":0.15, "wwn_0.2":0.2, "wwn_0.25":0.25, "wwn_0.3":0.3, "wwn_0.35":0.35, "wwn_0.4":0.4, "wwn_0.45":0.45}
     fig, ax = plt.subplots()
     y = np.zeros((len(noise),1))
-    x = np.asarray(noise)
-    for i,n in enumerate(noise):
-        config.restore = os.path.join("./baselines/experiment_results/experiment_results/rarl_cartpole", "wwn_" + str(n))
-        config.output_dir = os.path.join("./baselines/experiment_results/experiment_results/rarl_cartpole", "wwn_" + str(n))
-        config.task_config.disturbances.dynamics[0].std = n 
+    print(noise.values())
+    breakpoint()
+    x = np.asarray(list(noise.values()))
+    for i,key in enumerate(noise.keys()):
+        config.restore = os.path.join("./baselines/experiment_results/experiment_results/ppo_cartpole_new", key)
+        config.output_dir = os.path.join("./baselines/experiment_results/experiment_results/ppo_cartpole_new", key)
+        config.task_config.disturbances.dynamics[0].std = noise[key]
         config.eval_output_dir = config.output_dir
         [ep_lengths, ep_returns, mse] = test_policy(config)
         y[i] = np.mean(np.array(mse))
         print(np.mean(np.array(mse)))
-    ax.plot(x, y, label=str(n))
-    name = "RARL NOISE vs. COST"
+    ax.plot(x, y)
+    name = "PPO NOISE vs. COST"
     plt.title(name)
     plt.xlabel("sigma")
     plt.ylabel("Cost")
     ax.legend(loc='upper left', frameon=False)
-    plt.savefig("rarl_plot_2" + ".jpg")
+    plt.savefig("ppo_plot_2" + ".jpg")
 
 
 MAIN_FUNCS = {"test": plot_results}

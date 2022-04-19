@@ -38,26 +38,64 @@ algo_config:
   eval_batch_size: 10
 
   # misc
-  log_interval: 0
+  log_interval: 1000
   save_interval: 0
   num_checkpoints: 0
   eval_interval: 0
   eval_save_best: False 
   tensorboard: False
 
-task_config: 
-  ctrl_freq: 10
-  pyb_freq: 240
+render: true
+task_config:
   info_in_reset: True
-  done_on_violation: False
-  disturbances: null
+  normalized_rl_action_space: False
   constraints:
     - constraint_form: abs_bound
-      bound: 0.4
+      bound: 1
       constrained_variable: state
       active_dims: 0
-    - constraint_form: default_constraint
-      constrained_variable: input
-      upper_bounds: 0.2
-  init_state: null
-  randomized_init: False
+    - constraint_form: abs_bound
+      bound: 0.5
+      constrained_variable: state
+      active_dims: 2 
+  done_on_violation: False
+  # init_state: 
+  #   init_x: 0.55
+  #   init_x_dot: 0.5
+  #   init_theta: 0.30
+  #   init_theta_dot: -0.1
+  # randomized_init: False
+  disturbances: 
+    dynamics:
+    - disturbance_func: white_noise
+      std: 0.15
+  init_state_randomization_info:
+    init_x:
+      distrib: 'uniform'
+      low: -0.5
+      high: 0.5
+    init_x_dot:
+      distrib: 'uniform'
+      low: -0.5
+      high: 0.5
+    init_theta:
+      distrib: 'uniform'
+      low: -0.35
+      high: 0.35
+    init_theta_dot:
+      distrib: 'uniform'
+      low: -0.15
+      high: 0.15
+  # env_disturbance: 
+  #   variable: dynamics
+  #   scheduler: cyclic
+  #   active_dims: [0,1]
+  #   start: [1,0]
+  #   sign: [-1,1]
+  #   max: [1, 1]
+  #   min: [0,-1]
+  #   scale: [0.1, 0.1]
+  #   std: [0.01, 0.01]
+  adversary_disturbance: dynamics 
+  adversary_disturbance_offset: 0.0
+  adversary_disturbance_scale: 0.01

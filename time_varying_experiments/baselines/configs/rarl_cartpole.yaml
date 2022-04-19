@@ -39,9 +39,9 @@ algo_config:
 
   # misc
   log_interval: 1000
-  save_interval: 0
+  save_interval: 1000
   num_checkpoints: 0
-  eval_interval: 0
+  eval_interval: 1000
   eval_save_best: False 
   tensorboard: False
 
@@ -68,7 +68,7 @@ task_config:
   disturbances: 
     dynamics:
     - disturbance_func: white_noise
-      std: 0.15
+      std: 0.10
   init_state_randomization_info:
     init_x:
       distrib: 'uniform'
@@ -90,11 +90,11 @@ task_config:
   #   variable: dynamics
   #   scheduler: cyclic
   #   active_dims: [0,1]
-  #   start: [1,0]
+  #   start: [0.0,0.0]
   #   sign: [-1,1]
-  #   max: [1, 1]
-  #   min: [0,-1]
-  #   scale: [0.1, 0.1]
+  #   max: [0, 0.2]
+  #   min: [-0.2,0]
+  #   scale: [1, 1]
   #   std: [0.01, 0.01]
   adversary_disturbance: dynamics 
   adversary_disturbance_offset: 0.0
