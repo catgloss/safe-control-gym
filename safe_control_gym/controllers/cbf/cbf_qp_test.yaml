@@ -40,18 +40,33 @@ task_config:
 
   # state initialization
   init_state:
-    init_x: -0.3
-    init_x_dot: 0.0
-    init_theta: 0.06
-    init_theta_dot: -0.04
+    init_x: 0.55
+    init_x_dot: 0.5
+    init_theta: 0.30
+    init_theta_dot: -0.1
 
   # constraints
+  # constraints:
+  # - constraint_form: default_constraint
+  #   constrained_variable: state
+  # - constraint_form: default_constraint
+  #   constrained_variable: input
+  #   upper_bounds:
+  #     - 8.0
+  #   lower_bounds:
+  #     - -8.0
   constraints:
-  - constraint_form: default_constraint
-    constrained_variable: state
-  - constraint_form: default_constraint
-    constrained_variable: input
+  - constraint_form: bounded_constraint
     upper_bounds:
-      - 8.0
+      - 1
     lower_bounds:
-      - -8.0
+      - -1
+    constrained_variable: state
+    active_dims: 0
+  - constraint_form: bounded_constraint
+    upper_bounds: 
+      - 0.5
+    lower_bounds: 
+      - -0.5
+    constrained_variable: state
+    active_dims: 2 

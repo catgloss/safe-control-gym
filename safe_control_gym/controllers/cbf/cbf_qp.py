@@ -494,8 +494,10 @@ class CBF_QP(BaseController):
         """
         # load model from training episode
         self.load(self.checkpoint_path)
+        render = True
 
         counter = 0
+        frames = []
 
         obs = self.env.reset()
 
@@ -508,6 +510,7 @@ class CBF_QP(BaseController):
             prefix="state")
 
         # while len(ep_returns) < self.eval_batch_size and counter < self.max_num_steps:
+
         while counter < self.max_num_steps:
             print("Step: ", self.env.pyb_step_counter // self.step_size)
 
@@ -522,6 +525,10 @@ class CBF_QP(BaseController):
             obs, reward, done, info = self.env.step(action)
             print("obs: {}".format(obs))
             print("action: {}\n".format(action))
+
+            if render:
+                self.env.render()
+                frames.append(self.env.render("rgb_array"))
 
             self.logger.add_scalars({
                 "safe_input": safe_action,
@@ -538,4 +545,4 @@ class CBF_QP(BaseController):
                 prefix="state")
             counter += 1
 
-        return self.logger.stats_buffer
+        return self.logger.stats_buffer, frames

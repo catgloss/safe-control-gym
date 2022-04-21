@@ -102,7 +102,7 @@ def test_policy(config):
 
     """
     # Evaluation setup.
-    if config.algo == "ppo" or config.algo == "mpsc" or config.algo == "rarl" or config.algo == "sac" or config.algo == "safe_explorer_ppo" or config.algo == "rap" or config.algo == "ilqr":
+    if config.algo == "cbf" or config.algo == "ppo" or config.algo == "mpsc" or config.algo == "rarl" or config.algo == "sac" or config.algo == "safe_explorer_ppo" or config.algo == "rap" or config.algo == "ilqr":
         set_device_from_config(config)
         if config.set_test_seed:
             # seed the evaluation (both controller and env) if given
@@ -150,10 +150,10 @@ def test_policy(config):
             pickle.dump(results, f)
         ep_lengths = results["ep_lengths"]
         ep_returns = results["ep_returns"]
-        # mse = results["mse"]
+        mse = results["mse"]
         msg = "eval_ep_length {:.2f} +/- {:.2f}\n".format(ep_lengths.mean(), ep_lengths.std())
         msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(ep_returns.mean(), ep_returns.std())
-        # msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
+        msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
         print(msg)
         if "frames" in results:
             print("has frames")
@@ -161,6 +161,13 @@ def test_policy(config):
         control_agent.close()
         print("Evaluation done.")
     elif config.algo == "gp_mpc":
+        try:
+            eval_output_dir = config.eval_output_dir
+        except:
+            if config.eval_output_dir is not None:
+                eval_output_dir = config.eval_output_dir
+            else:
+                eval_output_dir = os.path.join(config.output_dir, "eval")
         set_device_from_config(config)
         if config.set_test_seed:
             # seed the evaluation (both controller and env) if given
@@ -169,57 +176,52 @@ def test_policy(config):
         else:
             env_seed = None
         # Define function to create task/env.
-        init_state = {'init_x': -0.5,
-                  'init_x_dot': 0.0,
-                  'init_z': 0.2,
-                  'init_z_dot': 0.0,
-                  'init_theta': 0.0,
-                  'init_theta_dot': 0.0
-                  }
+        # init_state = {'init_x': -0.5,
+        #           'init_x_dot': 0.0,
+        #           'init_z': 0.2,
+        #           'init_z_dot': 0.0,
+        #           'init_theta': 0.0,
+        #           'init_theta_dot': 0.0
+        #           }
         set_seed_from_config(config)
         set_device_from_config(config)
         # config.disturbances.dynamics[0].std = config.noise
-        print(config.disturbances.dynamics[0].std)
+        # print(config.disturbances.dynamics[0].std)
         env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
-        test_env = env_func(init_state=init_state, randomized_init=False, seed=222)
-        # Create the controller/control_agent.
-        control_agent = make(config.algo,
-                    env_func,
-                    training=True,
-                    output_dir=config.output_dir,
-                    checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
-                    logging=True,
-                    device=config.device,
-                    **config.algo_config)
-        control_agent.reset()
-        control_agent.learn()
-        results = control_agent.run(env=test_env,
-                                    render=True,
-                                    max_steps=100)
-
-    # Save evalution results.
-    try:
-        eval_output_dir = config.eval_output_dir
-    except:
-        eval_output_dir = os.path.join(config.output_dir, "eval")
-    os.makedirs(eval_output_dir, exist_ok=True)
-    print(eval_output_dir)
-    # test trajs and statistics 
-    eval_path = os.path.join(eval_output_dir, config.eval_output_path)
-    os.makedirs(os.path.dirname(eval_path), exist_ok=True)
-    with open(eval_path, "wb") as f:
-        pickle.dump(results, f)
-    ep_lengths = results["ep_lengths"]
-    ep_returns = results["ep_returns"]
-    # mse = results["mse"]
-    msg = "eval_ep_length {:.2f} +/- {:.2f}\n".format(np.mean(np.array(ep_lengths)), np.std(np.array(ep_lengths)))
-    msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(np.mean(np.array(ep_returns)), np.std(np.array(ep_returns)))
-    # msg += "eval_mse {:.3f} +/- {:.3f}\n".format(np.mean(np.array(mse)), np.std(np.array(mse)))
-    print(msg)
-    if "frames" in results:
-        save_video(os.path.join(eval_output_dir, "video.gif"), results["frames"])
-    control_agent.close()
-    print("Evaluation done.")
+        mse = []
+        frames = []
+        for i in range(0,5):
+            # state = np.random.uniform(low=[-0.4, -0.4, -0.35, -0.15], high=[0.4, 0.4, 0.35, 0.15], size=(4,))
+            state = [0.4, 0.4, 0.15, -0.1]
+            print(state)
+            init_state = {'init_x': state[0],
+                  'init_x_dot': state[1],
+                  'init_theta': state[2],
+                  'init_theta_dot': state[3]
+                  }
+            test_env = env_func(init_state=init_state, randomized_init=True, seed=222)
+            # Create the controller/control_agent.
+            control_agent = make(config.algo,
+                        env_func,
+                        training=True,
+                        output_dir=config.output_dir,
+                        checkpoint_path=os.path.join(config.output_dir, "model_latest.pt"),
+                        logging=True,
+                        device=config.device,
+                        **config.algo_config)
+            control_agent.reset()
+            # control_agent.learn()
+            results = control_agent.run(env=test_env,
+                                        render=True,
+                                        max_steps=100)
+            mse.append(results["mse"])
+            print(np.mean(mse))
+            frames.extend(results['frames'])
+        if "frames" in results:
+            print("has frames")
+            save_video(os.path.join(eval_output_dir, "video.gif"), frames)
+        control_agent.close()
+        print("Evaluation done.")
 
 
 MAIN_FUNCS = {"train": train, "plot": make_plots, "test": test_policy}

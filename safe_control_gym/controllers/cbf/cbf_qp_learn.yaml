@@ -32,30 +32,63 @@ task_config:
     cart_mass: 0.8
 
   randomized_init: True
+  # init_state_randomization_info:
+  #   "init_x":
+  #       "distrib": "uniform"
+  #       "low": -1.0
+  #       "high": 1.0
+  #   "init_x_dot":
+  #       "distrib": "uniform"
+  #       "low": -0.5
+  #       "high": 0.5
+  #   "init_theta":
+  #       "distrib": "uniform"
+  #       "low": -0.1
+  #       "high": 0.1
+  #   "init_theta_dot":
+  #       "distrib": "uniform"
+  #       "low": -0.1
+  #       "high": 0.1
   init_state_randomization_info:
-    "init_x":
-        "distrib": "uniform"
-        "low": -1.0
-        "high": 1.0
-    "init_x_dot":
-        "distrib": "uniform"
-        "low": -0.5
-        "high": 0.5
-    "init_theta":
-        "distrib": "uniform"
-        "low": -0.1
-        "high": 0.1
-    "init_theta_dot":
-        "distrib": "uniform"
-        "low": -0.1
-        "high": 0.1
+    init_x:
+      distrib: 'uniform'
+      low: -0.5
+      high: 0.5
+    init_x_dot:
+      distrib: 'uniform'
+      low: -0.5
+      high: 0.5
+    init_theta:
+      distrib: 'uniform'
+      low: -0.35
+      high: 0.35
+    init_theta_dot:
+      distrib: 'uniform'
+      low: -0.15
+      high: 0.15
   # constraints
+  # constraints:
+  # - constraint_form: default_constraint
+  #   constrained_variable: state
+  # - constraint_form: default_constraint
+  #   constrained_variable: input
+  #   upper_bounds:
+  #     - 8.0
+  #   lower_bounds:
+  #     - -8.0
   constraints:
-  - constraint_form: default_constraint
-    constrained_variable: state
-  - constraint_form: default_constraint
-    constrained_variable: input
-    upper_bounds:
-      - 8.0
-    lower_bounds:
-      - -8.0
+    - constraint_form: bounded_constraint
+      upper_bounds:
+        - 1
+      lower_bounds:
+        - -1
+      constrained_variable: state
+      active_dims: 0
+    - constraint_form: bounded_constraint
+      upper_bounds: 
+        - 0.5
+      lower_bounds: 
+        - -0.5
+      constrained_variable: state
+      active_dims: 2 
+  done_on_violation: False

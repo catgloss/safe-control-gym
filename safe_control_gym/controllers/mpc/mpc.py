@@ -310,7 +310,7 @@ class MPC(BaseController):
         self.x_prev = None
         self.u_prev = None
         obs, info = env.reset()
-        ep_returns, ep_lengths = [], []
+        ep_returns, ep_lengths, ep_mse = [], [], []
         frames = []
         self.reset_results_dict()
         self.results_dict['obs'].append(obs)
@@ -348,9 +348,12 @@ class MPC(BaseController):
                 env.render()
                 frames.append(env.render("rgb_array"))
             i += 1
+            ep_mse.append(obs - env.X_GOAL)
         # Collect evaluation results.
         ep_lengths = np.asarray(ep_lengths)
         ep_returns = np.asarray(ep_returns)
+        ep_mse = np.mean(np.square(np.asarray(ep_mse)))
+
         if self.logging:
             msg = "****** Evaluation ******\n"
             msg += "eval_ep_length {:.2f} +/- {:.2f} | eval_ep_return {:.3f} +/- {:.3f}\n".format(
@@ -360,6 +363,8 @@ class MPC(BaseController):
         try:
             self.results_dict['reward'] = np.vstack(self.results_dict['reward'])
             self.results_dict['action'] = np.vstack(self.results_dict['action'])
+            self.results_dict['frames'] = frames
+            self.results_dict['mse'] = ep_mse
         except ValueError:
             raise Exception("[ERROR] mpc.run().py: MPC could not find a solution for the first step given the initial conditions. "
                   "Check to make sure initial conditions are feasible.")

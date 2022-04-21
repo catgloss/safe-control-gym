@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 
 from safe_control_gym.utils.configuration import ConfigFactory
 from safe_control_gym.utils.registration import make
-from safe_control_gym.utils.utils import set_device_from_config
+from safe_control_gym.utils.utils import set_device_from_config, save_video
 
 
 def plot_is_cbf(infeasible_states, maximum_states):
@@ -268,7 +268,11 @@ def test_policy(config):
     if config.restore:
         control_agent.load(os.path.join(config.restore, "model_latest.pt"))
 
-    stats_buffer = control_agent.run(logging=True)
+    stats_buffer, frames = control_agent.run(logging=True)
+    print(frames)
+    if "frames" is not None:
+        print("has frames")
+        save_video(os.path.join(config.output_dir, "video.gif"), frames)
     control_agent.close()
 
     plot_test(stats_buffer, maximum_states)

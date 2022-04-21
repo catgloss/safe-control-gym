@@ -7,6 +7,7 @@ algo_config:
     - 1
     - 1
     - 1
+  # gp_model_path: ./baselines/experiment_results/experiment_results/gp_mpc_cartpole/no_disturbances
   gp_model_path: null
   train_iterations: 150
   validation_iterations: 1
@@ -16,10 +17,10 @@ algo_config:
     - 2000
     - 2000
   learning_rate:
-    - 0.005
-    - 0.005
-    - 0.005
-    - 0.005
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
   normalize_training_data: false
   use_gpu: false
   inertial_prop: null
@@ -38,28 +39,46 @@ algo_config:
   #     b:
   #       - 1.1
   #     constrained_variable: state
+  input_mask: 
+   - 0
+   - 1
+   - 2
+   - 3
+   - 4
+  output_mask: 
+   - 0 
+   - 1
+   - 2
+   - 3
 task_config:
   ctrl_freq: 10
   pyb_freq: 240
   info_in_reset: True
   normalized_rl_action_space: False
   constraints:
+    - constraint_form: default_constraint
+      constrained_variable: input
     - constraint_form: abs_bound
       bound: 1
       constrained_variable: state
       active_dims: 0
-    - constraint_form: abs_bound
-      bound: 0.5
-      constrained_variable: state
-      active_dims: 2 
-    - constraint_form: default_constraint
-      constrained_variable: input
-  done_on_violation: False
+  #   - constraint_form: abs_bound
+  #     bound: 0.5
+  #     constrained_variable: state
+  #     active_dims: 2 
+  #   - constraint_form: default_constraint
+  #     constrained_variable: input
+  disturbances: 
+      dynamics:
+      - disturbance_func: white_noise
+        std: 0.1
+  done_on_violation: True
   # init_state: 
   #   init_x: 0.7
   #   init_x_dot: 1.0
   #   init_theta: 0.45
   #   init_theta_dot: -0.3
+
   randomized_init: True
   init_state_randomization_info:
     init_x:
