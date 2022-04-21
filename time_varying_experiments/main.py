@@ -190,9 +190,9 @@ def test_policy(config):
         env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
         mse = []
         frames = []
-        for i in range(0,5):
+        for i in range(0,1):
             # state = np.random.uniform(low=[-0.4, -0.4, -0.35, -0.15], high=[0.4, 0.4, 0.35, 0.15], size=(4,))
-            state = [0.4, 0.4, 0.15, -0.1]
+            state = [0.2, 0.2, 0.15, -0.1]
             print(state)
             init_state = {'init_x': state[0],
                   'init_x_dot': state[1],

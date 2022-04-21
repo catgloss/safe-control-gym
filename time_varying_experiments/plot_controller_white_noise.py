@@ -128,6 +128,7 @@ def plot_results(config):
             print(np.mean(np.array(mse)))
         ax.plot(x, y, label="trained on" + str(test_n))
         name = "RARL NOISE vs. COST (comparison)"
+        
         plt.title(name)
         plt.xlabel("sigma")
         plt.ylabel("Cost")

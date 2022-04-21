@@ -107,35 +107,36 @@ def test_policy(config):
         msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
         if "frames" in results:
             print("has frames")
-            save_video(os.path.join(eval_output_dir, "video" + str(config.task_config.disturbances.dynamics[0].std) + ".gif"), results["frames"])
+            save_video(os.path.join(eval_output_dir, "video" + config.algo + str(config.task_config.disturbances.dynamics[0].std) + ".gif"), results["frames"])
         control_agent.close()
         print("Evaluation done.")
     return [ep_lengths, ep_returns, mse]
 
 def plot_results(config):
-    noise = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35]
-    test_models = ["wwn_0.1", "wwn_0.15", "wwn_0.2", "wwn_0.25", "cyclic_0.1", "cyclic_0.15", "cyclic_0.2", "cyclic_0.25"]
+    noise = [0.0, 0.1, 0.2, 0.3, 0.35, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
+    test_models = ["wwn_0.05", "wwn_0.1", "wwn_0.15", "wwn_0.2", "wwn_0.25"]
     fig, ax = plt.subplots()
     y = np.zeros((len(noise),1))
     x = np.asarray(noise)
-    for test in test_models:
-        for i,n in enumerate(noise):
-            config.restore = os.path.join("./baselines/experiment_results/experiment_results/ppo_cartpole_new", test)
-            path = os.path.join("./baselines/experiment_results/experiment_results/ppo_cartpole_new", "test_w_cyclic")
-            os.makedirs(os.path.join(path, test), exist_ok=True)
-            config.output_dir = os.path.join(path, test)
-            config.task_config.disturbances.dynamics[0].std = n 
-            config.eval_output_dir = os.path.join(path, test)
-            [ep_lengths, ep_returns, mse] = test_policy(config)
-            y[i] = np.mean(np.array(mse))
-            print(np.mean(np.array(mse)))
-        ax.plot(x, y, label="trained on " + str(test))
-        name = "PPO DISTURBANCE vs. COST (comparison)"
-        plt.title(name)
-        plt.xlabel("sigma")
-        plt.ylabel("Cost")
-        ax.legend(loc='upper left', frameon=False)
-        plt.savefig(os.path.join(config.eval_output_dir, "noise_comparison_plot_w_cyclic_" + str(test) + ".jpg"))
+    controller = "rarl_cartpole"
+    for i,n in enumerate(noise):
+        config.restore = os.path.join("./baselines/experiment_results/experiment_results/" + controller, "no_disturbances")
+        path = os.path.join("./baselines/experiment_results/experiment_results", "compare_baselines")
+        os.makedirs(path, exist_ok=True)
+        config.output_dir = os.path.join(path)
+        config.task_config.disturbances.dynamics[0].std = n 
+        config.eval_output_dir = os.path.join(path)
+        [ep_lengths, ep_returns, mse] = test_policy(config)
+        y[i] = np.mean(np.array(mse))
+        print(np.mean(np.array(mse)))
+    ax.plot(x, y, label=config.algo)
+    name = "White Noise Disturbance vs. Cost"
+    np.save(os.path.join(path, config.algo + "_test"), y)
+    plt.title(name)
+    plt.xlabel("sigma")
+    plt.ylabel("Cost")
+    ax.legend(loc='best', frameon=False)
+    plt.savefig(os.path.join(config.eval_output_dir, "noise_comparison_no_disturbance" + config.algo + ".jpg"))
 
 
 MAIN_FUNCS = {"test": plot_results}

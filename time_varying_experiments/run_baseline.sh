@@ -12,7 +12,7 @@ OUTPUT_DIR="test_2"
 
 ## GP_MPC CARTPOLE
 # python3 main.py --algo gp_mpc --task cartpole --overrides ./baselines/configs/gp_mpc_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/gp_mpc_cartpole --thread 1 --func train
-# python3 main.py --algo gp_mpc --task cartpole --overrides ./baselines/configs/gp_mpc_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/gp_mpc_cartpole --thread 1 --func test --eval_output_dir ./baselines/experiment_results/experiment_results/gp_mpc_cartpole/wwn_0.1
+python3 main.py --algo gp_mpc --task cartpole --overrides ./baselines/configs/gp_mpc_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/gp_mpc_cartpole --thread 1 --func test --eval_output_dir ./baselines/experiment_results/experiment_results/gp_mpc_cartpole/no_disturbances
 
 # python3 main.py --algo cbf --task cartpole --overrides ../safe_control_gym/controllers/cbf/cbf_qp_learn.yaml --output_dir ./baselines/experiment_results --tag experiment_results/cbf_cartpole --thread 1 --func test --eval_output_dir ./baselines/experiment_results/experiment_results/cbf_cartpole
 ## GP_MPC QUAD
@@ -20,8 +20,8 @@ OUTPUT_DIR="test_2"
 # python3 main.py --algo gp_mpc --task quadrotor --overrides ./baselines/configs/gp_mpc_quad.yaml --output_dir ./baselines/experiment_results/experiment_results/gp_mpc_quad --restore ./baselines/experiment_results/experiment_results/gp_mpc_quad/temp/seed79123_Mar-16-21-35-34_v0.5.0-83-gfb6c69a --thread 1 --func test
 
 ## RARL CARTPOLE
-# python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rarl_cartpole --thread 1 --func train
-python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rarl_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/rarl_cartpole/wwn_0.1 --eval_output_dir ./baselines/experiment_results/experiment_results/rarl_cartpole/wwn_0.1
+# # python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rarl_cartpole --thread 1 --func train
+# python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/rarl_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/rarl_cartpole/wwn_0.1 --eval_output_dir ./baselines/experiment_results/experiment_results/rarl_cartpole/no_
 # python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir ./baselines/experiment_results/experiment_results/rarl_cartpole/$OUTPUT_DIR --tag experiment_results/rarl_cartpole --thread 1 --func plot
 
 ## RARL QUAD
@@ -31,7 +31,7 @@ python3 main.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl
 
 ## Safe Explorer 
 # python3 main.py --algo sac --task cartpole --overrides ./baselines/configs/sac_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/sac_cartpole --thread 1 --func train
-# python3 main.py --algo sac --task cartpole --overrides ./baselines/configs/sac_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/sac_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/sac_cartpole/seed-_Apr-04-23-56-42_v0.5.0-96-g475df85 --eval_output_dir ./baselines/experiment_results/experiment_results/sac_cartpole/seed-_Apr-04-23-56-42_v0.5.0-96-g475df85
+# python3 main.py --algo sac --task cartpole --overrides ./baselines/configs/sac_cartpole.yaml --output_dir ./baselines/experiment_results --tag experiment_results/sac_cartpole --thread 1 --seed 222 --func test --restore ./baselines/experiment_results/experiment_results/sac_cartpole/no_disturbances --eval_output_dir ./baselines/experiment_results/experiment_results/sac_cartpole/no_disturbances
 # python3 main.py --algo sac --task cartpole --overrides ./baselines/configs/sac_cartpole.yaml --output_dir ./baselines/experiment_results/experiment_results/sac_cartpole/seed-_Apr-04-23-56-42_v0.5.0-96-g475df85 --tag experiment_results/sac_cartpole --thread 1 --func plot
 
 ## Safe PPO CARTPOLE
