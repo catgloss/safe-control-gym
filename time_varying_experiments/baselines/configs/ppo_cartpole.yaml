@@ -25,10 +25,14 @@ task_config:
   #   init_theta: 0.30
   #   init_theta_dot: -0.1
   # randomized_init: False
+  # disturbances: 
+  #     dynamics:
+  #     - disturbance_func: white_noise
+  #       std: 0.15
   disturbances: 
-      dynamics:
+      action:
       - disturbance_func: white_noise
-        std: 0.15
+        std: 0.1
   init_state_randomization_info:
     init_x:
       distrib: 'uniform'
@@ -50,9 +54,9 @@ task_config:
   #   variable: dynamics
   #   scheduler: cyclic
   #   active_dims: [0,1]
-  #   start: [0.0,0.0]
+  #   start: [-0.01,0.01]
   #   sign: [-1,1]
-  #   max: [0, 0.25]
-  #   min: [-0.25,0]
+  #   max: [0, 0.15]
+  #   min: [-0.15,0]
   #   scale: [1, 1]
   #   std: [0.01, 0.01]

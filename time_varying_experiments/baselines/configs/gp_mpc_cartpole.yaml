@@ -99,11 +99,11 @@ task_config:
       high: 0.15
   env_disturbance: 
     variable: dynamics
-    scheduler: cyclic
+    scheduler: saw
     active_dims: [0,1]
     start: [0.0,0.0]
     sign: [-1,1]
-    max: [0, 0.1]
-    min: [-0.1,0]
+    max: [0, 0.10]
+    min: [-0.10,0]
     scale: [1, 1]
     std: [0.01, 0.01]

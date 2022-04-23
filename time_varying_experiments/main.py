@@ -111,7 +111,10 @@ def test_policy(config):
         else:
             env_seed = None
         # Define function to create task/env.
+
+
         # config.task_config.disturbances.dynamics[0].std = config.noise
+        config.task_config.disturbances.action[0].std = config.noise
         # print(env_seed)
         # breakpoint()
         env_func = partial(make, config.task, seed=env_seed, output_dir=config.output_dir, **config.task_config)

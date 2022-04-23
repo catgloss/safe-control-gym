@@ -502,11 +502,14 @@ class CartPole(BenchmarkEnv):
                     if self.env_action[dim] >= self.env_disturbance["max"][i]:
                         self.env_action[dim] = self.env_disturbance["start"][i]
             if scheduler == "saw": 
-                self.env_action[dim] = self.env_disturbance["sign"][i] * abs(delta)
-                if ((self.env_action[dim] >= self.env_disturbance["max"][i])) or (self.env_action[dim] <= -(self.env_disturbance["min"][i])):
+                self.env_action[dim] += self.env_disturbance["sign"][i] * abs(delta)
+                if ((self.env_action[dim] >= self.env_disturbance["max"][i])) or (self.env_action[dim] <= self.env_disturbance["min"][i]):
                     self.env_disturbance["sign"][i] *= -1.
-            # print(self.env_action)
-        # breakpoint()
+                    if (self.env_action[dim] >= self.env_disturbance["max"][i]):
+                        self.env_action[dim] = self.env_disturbance["max"][i]
+                    if (self.env_action[dim] <= self.env_disturbance["min"][i]):
+                        self.env_action[dim] = self.env_disturbance["min"][i]
+                
         return self.env_action
 
 
