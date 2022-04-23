@@ -285,6 +285,17 @@ class MLPActorCritic(nn.Module):
         a, _ = self.actor(obs, deterministic, False)
         return a.numpy()
 
+class HallucinatedModel(nn.Module):
+    """ Hallucinated Model for RH-UCRL agent
+        
+        Attributes:
+            beta
+    """
+
+    def __init__(self, obs_space, act_space, hidden_dims=(64,64), activation="relu"):
+        super().__init__()
+
+    def forward(self, )
 
 # -----------------------------------------------------------------------------------
 #                   Storage

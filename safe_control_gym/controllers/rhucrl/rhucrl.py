@@ -21,7 +21,7 @@ from safe_control_gym.controllers.rhucrl.rhucrl_utils import BPTTAgent, BPTTBuff
 
 
 class RHUCRL(BaseController):
-    """robust hallunicated upper confidence reinforcement learning with SAC."""
+    """robust hallunicated upper confidence reinforcement learning with SAC framework."""
 
     def __init__(self, 
                  env_func, 
