@@ -143,33 +143,8 @@ def plot_results(config):
     ax.legend(loc='best', frameon=False)
     plt.savefig(os.path.join(config.eval_output_dir, "dynamics_noise_comparison_no_disturbance" + config.algo + ".jpg"))
 
-def plot_comparison(config):
-    noise = [0.0, 0.05, 0.1, 0.15, 0.25, 0.5, 0.75, 1.0, 1.5]
-    fig, ax = plt.subplots()
-    y = np.zeros((len(noise),1))
-    x = np.asarray(noise)
-    controller = "safe_explorer_cartpole"
-    print("RESTORE: ", config.restore)
-    print("EVAL_OUTPUT: ", config.eval_output_dir)
-    print("OUTPUT: ", config.output_dir)
-    for i, n in enumerate(noise):
-        print("Testing for: ", n)
-        config.task_config.disturbances.dynamics[0].std = n 
-        [ep_lengths, ep_returns, mse] = test_policy(config)
-        y[i] = np.mean(np.array(mse))
-        print(np.mean(np.array(mse)))
 
-    ax.plot(x, y, label="trained on "+ config.noise)
-    plt.xlabel("Sigma")
-    plt.ylabel("Cost")
-    name = "White Noise Dynamics Disturbance vs. Cost (With Training)"
-    np.save(os.path.join(config.output_dir, config.algo + "_dynamics_test_train_" + str(config.noise) + "_test_" + str(n)), y)
-    plt.title(name)
-    ax.legend(loc='best', frameon=False)
-    plt.savefig(os.path.join(config.eval_output_dir, "dynamics_noise_comparison_train_on_" + config.noise + "_" + config.algo + ".jpg"))
-
-
-MAIN_FUNCS = {"test": plot_results, "plot": plot_comparison}
+MAIN_FUNCS = {"test": plot_results}
 
 if __name__ == "__main__":
     # Make config.

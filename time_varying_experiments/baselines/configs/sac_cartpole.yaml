@@ -19,30 +19,39 @@ task_config:
       constrained_variable: state
       active_dims: 2 
   done_on_violation: False
-  # init_state: 
-  #   init_x: 0.0
-  #   init_x_dot: 0.0
-  #   init_theta: 0.0
-  #   init_theta_dot: 0.0
+  init_state: 
+    init_x: 0.55
+    init_x_dot: 0.5
+    init_theta: 0.30
+    init_theta_dot: -0.1
+  randomized_init: False
   disturbances: 
     dynamics:
     - disturbance_func: white_noise
-      std: 0.15
-  randomized_init: True
-  init_state_randomization_info:
-    init_x:
-      distrib: 'uniform'
-      low: -0.5
-      high: 0.5
-    init_x_dot:
-      distrib: 'uniform'
-      low: -0.75
-      high: 0.75
-    init_theta:
-      distrib: 'uniform'
-      low: -0.5
-      high: 0.5
-    init_theta_dot:
-      distrib: 'uniform'
-      low: -0.25
-      high: 0.25
+      std: 0.0
+  disturbances: 
+    observation:
+    - disturbance_func: white_noise
+      std: 0.0
+  disturbances: 
+    action:
+    - disturbance_func: white_noise
+      std: 0.0
+  # randomized_init: True
+  # init_state_randomization_info:
+  #   init_x:
+  #     distrib: 'uniform'
+  #     low: -0.5
+  #     high: 0.5
+  #   init_x_dot:
+  #     distrib: 'uniform'
+  #     low: -0.75
+  #     high: 0.75
+  #   init_theta:
+  #     distrib: 'uniform'
+  #     low: -0.5
+  #     high: 0.5
+  #   init_theta_dot:
+  #     distrib: 'uniform'
+  #     low: -0.25
+  #     high: 0.25

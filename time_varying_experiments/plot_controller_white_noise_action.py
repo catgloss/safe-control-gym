@@ -30,7 +30,7 @@ def train(config):
     set_device_from_config(config)
     # Define function to create task/env.
     # Create the controller/control_agent.
-    if config.algo == "ppo" or config.algo == "rarl" or config.algo == "rap" or config.algo == "mpsc" or config.algo == "sac" or config.algo == "safe_explorer_ppo":
+    if config.algo == "ppo" or config.algo == "rarl" or config.algo == "rap" or config.algo == "sac" or config.algo == "safe_explorer_ppo":
         env_func = partial(make, config.task, output_dir=config.output_dir, **config.task_config)
         control_agent = make(config.algo,
                             env_func,
@@ -107,54 +107,48 @@ def test_policy(config):
         msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
         if "frames" in results:
             print("has frames")
-            save_video(os.path.join(eval_output_dir, "video_" + config.algo + "_" + str(config.task_config.disturbances.dynamics[0].std) + ".gif"), results["frames"])
+            save_video(os.path.join(eval_output_dir, "video_" + config.algo + str(config.task_config.disturbances.action[0].std) + ".gif"), results["frames"])
         control_agent.close()
         print("Evaluation done.")
     return [ep_lengths, ep_returns, mse]
 
 def plot_results(config):
-    noise = [0.0, 0.05, 0.1, 0.15, 0.25, 0.5, 0.75, 1.0, 1.5]
+    noise = [0.0, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
     fig, ax = plt.subplots()
     y = np.zeros((len(noise),1))
     x = np.asarray(noise)
-    if config.algo == "ppo":
-        controller = "ppo_cartpole_new"
-    elif config.algo == "safe_explorer_ppo":
-        controller = "safe_explorer_cartpole"
-    else:
-        controller = config.algo + "_cartpole"
+    controller = "safe_explorer_cartpole"
     for i, n in enumerate(noise):
         print("Testing for: ", n)
         config.restore = os.path.join("./baselines/experiment_results/experiment_results/" + controller, "no_disturbances")
-        path = os.path.join("./baselines/experiment_results/experiment_results", "white_noise_dynamics")
+        path = os.path.join("./baselines/experiment_results/experiment_results", "white_noise_action")
         os.makedirs(path, exist_ok=True)
         config.output_dir = os.path.join(path)
-        config.task_config.disturbances.dynamics[0].std = n
+        # config.task_config.disturbances.dynamics[0].std = n
+        config.task_config.disturbances.action[0].std = n 
         config.eval_output_dir = os.path.join(path)
         [ep_lengths, ep_returns, mse] = test_policy(config)
         y[i] = np.mean(np.array(mse))
         print(np.mean(np.array(mse)))
     ax.plot(x, y, label=config.algo)
-    name = "White Noise Dynamics Disturbance vs. Cost"
-    np.save(os.path.join(path, config.algo + "_dynamics_test"), y)
+    name = "White Noise Action Disturbance vs. Cost"
+    np.save(os.path.join(path, config.algo + "_action_test_no_rand"), y)
     plt.title(name)
     plt.xlabel("sigma")
     plt.ylabel("Cost")
     ax.legend(loc='best', frameon=False)
-    plt.savefig(os.path.join(config.eval_output_dir, "dynamics_noise_comparison_no_disturbance" + config.algo + ".jpg"))
+    plt.savefig(os.path.join(config.eval_output_dir, "action_noise_comparison_no_disturbance_no_rand_" + config.algo + ".jpg"))
 
 def plot_comparison(config):
-    noise = [0.0, 0.05, 0.1, 0.15, 0.25, 0.5, 0.75, 1.0, 1.5]
+    noise = [0.0, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
     fig, ax = plt.subplots()
     y = np.zeros((len(noise),1))
     x = np.asarray(noise)
-    controller = "safe_explorer_cartpole"
-    print("RESTORE: ", config.restore)
-    print("EVAL_OUTPUT: ", config.eval_output_dir)
-    print("OUTPUT: ", config.output_dir)
+    config.restore = os.path.join(config.output_dir, os.listdir(config.output_dir)[-1])
     for i, n in enumerate(noise):
         print("Testing for: ", n)
-        config.task_config.disturbances.dynamics[0].std = n 
+        config.task_config.disturbances.action[0].std = n 
+        config.eval_output_dir = config.output_dir
         [ep_lengths, ep_returns, mse] = test_policy(config)
         y[i] = np.mean(np.array(mse))
         print(np.mean(np.array(mse)))
@@ -162,14 +156,14 @@ def plot_comparison(config):
     ax.plot(x, y, label="trained on "+ config.noise)
     plt.xlabel("Sigma")
     plt.ylabel("Cost")
-    name = "White Noise Dynamics Disturbance vs. Cost (With Training)"
-    np.save(os.path.join(config.output_dir, config.algo + "_dynamics_test_train_" + str(config.noise) + "_test_" + str(n)), y)
+    name = "White Noise Action Disturbance vs. Cost (With Training)"
+    np.save(os.path.join(config.output_dir, config.algo + "_action_test_train_" + str(config.noise) + "_test_" + str(n)), y)
     plt.title(name)
     ax.legend(loc='best', frameon=False)
-    plt.savefig(os.path.join(config.eval_output_dir, "dynamics_noise_comparison_train_on_" + config.noise + "_" + config.algo + ".jpg"))
+    plt.savefig(os.path.join(config.eval_output_dir, "action_noise_comparison_train_on_" + config.noise + "_" + config.algo + ".jpg"))
 
 
-MAIN_FUNCS = {"test": plot_results, "plot": plot_comparison}
+MAIN_FUNCS = {"test": plot_results, "train": train, "plot": plot_comparison}
 
 if __name__ == "__main__":
     # Make config.
@@ -182,6 +176,7 @@ if __name__ == "__main__":
     fac.add_argument("--set_test_seed", action="store_true", help="if to set seed when testing policy.")
     fac.add_argument("--eval_output_dir", type=str, help="folder path to save evaluation results.")
     fac.add_argument("--eval_output_path", type=str, default="test_results.pkl", help="file path to save evaluation results.")
+    fac.add_argument("--noise", type=float, default=0.0, help="noise to test with")
     config = fac.merge()
     # System settings.
     if config.thread > 0:

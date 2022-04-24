@@ -65,10 +65,18 @@ task_config:
     init_theta: 0.30
     init_theta_dot: -0.1
   randomized_init: False
-  # disturbances: 
-  #   dynamics:
-  #   - disturbance_func: white_noise
-  #     std: 0.15
+  disturbances: 
+    dynamics:
+    - disturbance_func: white_noise
+      std: 0.0
+  disturbances: 
+    observation:
+    - disturbance_func: white_noise
+      std: 0.0
+  disturbances: 
+    action:
+    - disturbance_func: white_noise
+      std: 0.0
   # init_state_randomization_info:
   #   init_x:
   #     distrib: 'uniform'
