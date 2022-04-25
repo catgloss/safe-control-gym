@@ -21,18 +21,21 @@ task_config:
   done_on_violation: False
   init_state: 
     init_x: 0.55
-    init_x_dot: 0.5
+    init_x_dot: 0.0
     init_theta: 0.30
-    init_theta_dot: -0.1
+    init_theta_dot: -0.0
   randomized_init: False
   disturbances: 
-      action:
-      - disturbance_func: white_noise
-        std: 0.0
-  disturbances:
-       observation:
-      - disturbance_func: white_noise
-        std: 0.0 
+    dynamics:
+    - disturbance_func: step
+      magnitude: 1
+      step_offset: 2
+    action:
+    - disturbance_func: white_noise
+      std: 0.0
+    observation:
+    - disturbance_func: white_noise
+      std: 0.0 
   # init_state_randomization_info:
   #   init_x:
   #     distrib: 'uniform'

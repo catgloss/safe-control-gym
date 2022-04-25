@@ -153,7 +153,7 @@ def plot_comparison(config):
         y[i] = np.mean(np.array(mse))
         print(np.mean(np.array(mse)))
 
-    ax.plot(x, y, label="trained on "+ config.noise)
+    ax.plot(x, y, label="trained on "+ str(config.noise))
     plt.xlabel("Sigma")
     plt.ylabel("Cost")
     name = "White Noise Action Disturbance vs. Cost (With Training)"

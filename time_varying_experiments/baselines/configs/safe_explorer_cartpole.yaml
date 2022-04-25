@@ -48,13 +48,12 @@ task_config:
   #     high: 0.15
   disturbances: 
     dynamics:
-    - disturbance_func: white_noise
-      std: 0.0
-  disturbances: 
+    - disturbance_func: step
+      magnitude: 1
+      step_offset: 2 
     observation:
     - disturbance_func: white_noise
       std: 0.0
-  disturbances: 
     action:
     - disturbance_func: white_noise
       std: 0.0

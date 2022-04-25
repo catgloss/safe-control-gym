@@ -32,10 +32,14 @@ noises_2=("0.0" "0.1" "0.15" "0.2")
 
 for noise in "${noises_2[@]}"
 do 
-    python3 plot_controller_white_noise_dynamics.py --algo sac --task cartpole --overrides ./baselines/configs/sac_cartpole.yaml --restore "./baselines/experiment_results/experiment_results/sac_cartpole/wwn_${noise}" --output_dir "./baselines/experiment_results/experiment_results/sac_cartpole/wwn_${noise}" --output_dir "./baselines/experiment_results/experiment_results/train_on_noise_dynamics/sac/wn_${noise}" --thread 1 --func plot --noise $noise
+    python3 plot_controller_white_noise_dynamics.py --algo sac --task cartpole --overrides ./baselines/configs/sac_cartpole.yaml --restore "./baselines/experiment_results/experiment_results/sac_cartpole/wwn_${noise}" --output_dir "./baselines/experiment_results/experiment_results/sac_cartpole/wwn_${noise}" --eval_output_dir "./baselines/experiment_results/experiment_results/train_on_noise_dynamics/sac/wn_${noise}" --thread 1 --func plot --noise $noise
 done
 
+python3 plot_controller_step_dynamics.py --algo ppo --task cartpole --overrides ./baselines/configs/ppo_cartpole.yaml --output_dir "./baselines/experiment_results/experiment_results/step_dynamics" --thread 1 --func test
 
+python3 plot_controller_step_dynamics.py --algo rarl --task cartpole --overrides ./baselines/configs/rarl_cartpole.yaml --output_dir "./baselines/experiment_results/experiment_results/step_dynamics" --thread 1 --func test
 
+python3 plot_controller_step_dynamics.py --algo rap --task cartpole --overrides ./baselines/configs/rap_cartpole.yaml --output_dir "./baselines/experiment_results/experiment_results/step_dynamics" --thread 1 --func test
 
+python3 plot_controller_step_dynamics.py --algo safe_explorer_ppo --task cartpole --overrides ./baselines/configs/safe_explorer_cartpole.yaml --output_dir "./baselines/experiment_results/experiment_results/step_dynamics" --thread 1 --func test
 

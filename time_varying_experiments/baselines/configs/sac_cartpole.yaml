@@ -29,11 +29,9 @@ task_config:
     dynamics:
     - disturbance_func: white_noise
       std: 0.0
-  disturbances: 
     observation:
     - disturbance_func: white_noise
       std: 0.0
-  disturbances: 
     action:
     - disturbance_func: white_noise
       std: 0.0

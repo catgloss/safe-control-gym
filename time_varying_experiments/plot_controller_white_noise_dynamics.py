@@ -150,7 +150,6 @@ def plot_comparison(config):
     x = np.asarray(noise)
     controller = "safe_explorer_cartpole"
     print("RESTORE: ", config.restore)
-    print("EVAL_OUTPUT: ", config.eval_output_dir)
     print("OUTPUT: ", config.output_dir)
     for i, n in enumerate(noise):
         print("Testing for: ", n)
@@ -166,7 +165,7 @@ def plot_comparison(config):
     np.save(os.path.join(config.output_dir, config.algo + "_dynamics_test_train_" + str(config.noise) + "_test_" + str(n)), y)
     plt.title(name)
     ax.legend(loc='best', frameon=False)
-    plt.savefig(os.path.join(config.eval_output_dir, "dynamics_noise_comparison_train_on_" + config.noise + "_" + config.algo + ".jpg"))
+    plt.savefig(os.path.join(config.eval_output_dir, "dynamics_noise_comparison_train_on_" + str(config.noise) + "_" + config.algo + ".jpg"))
 
 
 MAIN_FUNCS = {"test": plot_results, "plot": plot_comparison}
@@ -182,6 +181,7 @@ if __name__ == "__main__":
     fac.add_argument("--set_test_seed", action="store_true", help="if to set seed when testing policy.")
     fac.add_argument("--eval_output_dir", type=str, help="folder path to save evaluation results.")
     fac.add_argument("--eval_output_path", type=str, default="test_results.pkl", help="file path to save evaluation results.")
+    fac.add_argument("--noise", type=float, default=0.0, help="input noise")
     config = fac.merge()
     # System settings.
     if config.thread > 0:
