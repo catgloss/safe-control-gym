@@ -107,13 +107,14 @@ def test_policy(config):
         msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
         if "frames" in results:
             print("has frames")
-            save_video(os.path.join(eval_output_dir, "video_" + config.algo + "_" + str(config.task_config.disturbances.dynamics[0].magnitude) + ".gif"), results["frames"])
+            save_video(os.path.join(eval_output_dir, "video_" + config.algo + "_" + str(config.task_config.disturbances.action[0].magnitude) + ".gif"), results["frames"])
         control_agent.close()
         print("Evaluation done.")
     return [ep_lengths, ep_returns, mse]
 
 def plot_results(config):
-    noise = [0.0, 0.01, 0.03, 0.05, 0.075, 0.1, 0.125, 0.15]
+    # noise = [0.0, 0.01, 0.03, 0.05, 0.075, 0.1, 0.125, 0.15]
+    noise = [0.0, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.5, 4, 4.5]
     fig, ax = plt.subplots()
     y = np.zeros((len(noise),1))
     x = np.asarray(noise)
@@ -125,23 +126,23 @@ def plot_results(config):
         controller = config.algo + "_cartpole"
     for i, n in enumerate(noise):
         print("Testing for: ", n)
-        config.restore = os.path.join("./baselines/experiment_results/experiment_results/" + controller, "wwn_0.0")
-        path = os.path.join("./baselines/experiment_results/experiment_results", "step_dynamics")
+        config.restore = os.path.join("./baselines/experiment_results/experiment_results/" + controller, "no_disturbances")
+        path = os.path.join("./baselines/experiment_results/experiment_results", "step_actions")
         os.makedirs(path, exist_ok=True)
         config.output_dir = os.path.join(path)
-        config.task_config.disturbances.dynamics[0].magnitude = n
+        config.task_config.disturbances.action[0].magnitude = n
         config.eval_output_dir = os.path.join(path)
         [ep_lengths, ep_returns, mse] = test_policy(config)
         y[i] = np.mean(np.array(mse))
         print(np.mean(np.array(mse)))
     ax.plot(x, y, label=config.algo)
-    name = "Step Dynamics Disturbance vs. Cost"
-    np.save(os.path.join(path, config.algo + "_dynamics_test"), y)
+    name = "Step Actions Disturbance vs. Cost"
+    np.save(os.path.join(path, config.algo + "_actions_test"), y)
     plt.title(name)
     plt.xlabel("sigma")
     plt.ylabel("Cost")
     ax.legend(loc='best', frameon=False)
-    plt.savefig(os.path.join(config.eval_output_dir, "dynamics_step_noise_comparison_no_disturbance" + config.algo + ".jpg"))
+    plt.savefig(os.path.join(config.eval_output_dir, "actions_step_noise_comparison_no_disturbance" + config.algo + ".jpg"))
 
 
 MAIN_FUNCS = {"test": plot_results}

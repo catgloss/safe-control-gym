@@ -113,7 +113,7 @@ def test_policy(config):
     return [ep_lengths, ep_returns, mse]
 
 def plot_results(config):
-    noise = [0.0, 0.01, 0.03, 0.05, 0.075, 0.1, 0.125, 0.15]
+    noise = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5,  3.0, 4.0, 5.0, 6.0, 7.0]
     fig, ax = plt.subplots()
     y = np.zeros((len(noise),1))
     x = np.asarray(noise)
@@ -125,8 +125,8 @@ def plot_results(config):
         controller = config.algo + "_cartpole"
     for i, n in enumerate(noise):
         print("Testing for: ", n)
-        config.restore = os.path.join("./baselines/experiment_results/experiment_results/" + controller, "wwn_0.0")
-        path = os.path.join("./baselines/experiment_results/experiment_results", "step_dynamics")
+        config.restore = os.path.join("./baselines/experiment_results/experiment_results/" + controller, "no_disturbances")
+        path = os.path.join("./baselines/experiment_results/experiment_results", "impulse_dynamics")
         os.makedirs(path, exist_ok=True)
         config.output_dir = os.path.join(path)
         config.task_config.disturbances.dynamics[0].magnitude = n
@@ -135,13 +135,13 @@ def plot_results(config):
         y[i] = np.mean(np.array(mse))
         print(np.mean(np.array(mse)))
     ax.plot(x, y, label=config.algo)
-    name = "Step Dynamics Disturbance vs. Cost"
+    name = "Impulse Dynamics Disturbance vs. Cost"
     np.save(os.path.join(path, config.algo + "_dynamics_test"), y)
     plt.title(name)
     plt.xlabel("sigma")
     plt.ylabel("Cost")
     ax.legend(loc='best', frameon=False)
-    plt.savefig(os.path.join(config.eval_output_dir, "dynamics_step_noise_comparison_no_disturbance" + config.algo + ".jpg"))
+    plt.savefig(os.path.join(config.eval_output_dir, "dynamics_impulse_noise_comparison_no_disturbance" + config.algo + ".jpg"))
 
 
 MAIN_FUNCS = {"test": plot_results}
