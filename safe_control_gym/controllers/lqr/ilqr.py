@@ -120,17 +120,24 @@ class iLQR(BaseController):
         self.save_plot = save_plot
 
         # Plot output directory.
+        print(plot_dir)
         self.plot_dir = plot_dir
-        if not os.path.exists(plot_dir):
-            os.makedirs(plot_dir)
+        if self.plot_dir is None:
+            self.plot_dir = os.getcwd()
+        if not os.path.exists(self.plot_dir):
+            os.makedirs(self.plot_dir)
 
         # Save data.
         self.save_data = save_data
 
         # Data output directory.
+        print(data_dir)
         self.data_dir = data_dir
-        if not os.path.exists(data_dir):
-            os.makedirs(data_dir)
+        if data_dir is None:
+            self.data_dir = os.getcwd()
+        if not os.path.exists(self.data_dir):
+            os.makedirs(self.data_dir)
+
 
         # Logging.
         self.logger = ExperimentLogger(output_dir)
@@ -146,7 +153,7 @@ class iLQR(BaseController):
         self.logger.close()
 
     def run_ilqr(self, render=False, logging=False):
-        """Run iLQR to iteratively update policy for each time step k
+        """Run iLQR to iteratively update policy for over each iteration
 
         Args:
             render (bool): Flag to save frames for visualization.
@@ -161,6 +168,8 @@ class iLQR(BaseController):
 
         # Initialize iteration logging variables.
         ite_returns, ite_lengths, ite_data, frames = [], [], {}, []
+        ilqr_eval_results = {}
+        ilqr_eval_results["frames"] = []
 
         # Initialize iteration and step counter.
         self.ite_counter = 0
@@ -172,21 +181,22 @@ class iLQR(BaseController):
 
         # Set update unstable flag to False
         self.update_unstable = False
-
+        
         # Loop through iLQR iterations
         while self.ite_counter < self.max_iterations:
+            done = False
             while not done:
+                self.init_state = np.array([self.env.INIT_X, self.env.INIT_X_DOT, self.env.INIT_THETA, self.env.INIT_THETA_DOT])
                 # Current goal.
                 if self.task == Task.STABILIZATION:
                     current_goal = self.x_0
                 elif self.task == Task.TRAJ_TRACKING:
                     current_goal = self.x_0[self.k]
-
-                # Compute input.
-                action = self.select_action(self.env.state, self.k)
-
+            
                 # Save rollout data.
                 if self.k == 0:
+                    self.env.state = self.init_state
+                    action = self.select_action(self.env.state, self.k)
                     # Initialize state and input stack.
                     state_stack = self.env.state
                     input_stack = action
@@ -195,10 +205,10 @@ class iLQR(BaseController):
                     # Print initial state.
                     print(colored("initial state: " + get_arr_str(self.env.state), "green"))
 
-                    if self.ite_counter == 0:
-                        self.init_state = self.env.state
                 else:
                     # Save state and input.
+                    action = self.select_action(self.env.state, self.k)
+
                     state_stack = np.vstack((state_stack, self.env.state))
                     input_stack = np.vstack((input_stack, action))
                     goal_stack = np.vstack((goal_stack, current_goal))
@@ -214,7 +224,7 @@ class iLQR(BaseController):
                 if self.verbose and self.k % 100 == 0:
                     print(colored("episode: %d step: %d" % (self.ite_counter, self.k), "green"))
                     print("state: " + get_arr_str(self.env.state))
-                    print("action: " + get_arr_str(self.env.state) + "\n")
+                    print("action: " + get_arr_str(action) + "\n")
 
                 # Save frame for visualization.
                 if render:
@@ -258,6 +268,7 @@ class iLQR(BaseController):
 
                     # Check if cost is increased and update lambda correspondingly
                     delta_reward = np.diff(ite_returns[-2:])
+                    print(delta_reward)
                     if self.ite_counter == 0:
 
                         # Save best iteration.
@@ -338,6 +349,9 @@ class iLQR(BaseController):
                                             self.save_plot,
                                             self.save_data,
                                             self.plot_dir, self.data_dir)
+            if render: 
+                ilqr_eval_results["frames"].append(frames)
+                frames = []
 
         # Collect evaluation results.
         ite_lengths = np.asarray(ite_lengths)
@@ -353,11 +367,10 @@ class iLQR(BaseController):
         ilqr_eval_results = {
             "ite_returns": ite_returns,
             "ite_lengths": ite_lengths,
-            "ite_data": ite_data
+            "ite_data": ite_data,
+            "frames": ilqr_eval_results["frames"]
         }
-
-        if len(frames) > 0:
-            ilqr_eval_results["frames"] = frames
+        print(ilqr_eval_results["frames"])
 
         return ilqr_eval_results
 
@@ -571,7 +584,6 @@ class iLQR(BaseController):
             evaluation trial.
 
         """
-
         # Initialize logging variables.
         ep_returns, ep_lengths, ep_fulldata, frames = [], [], {}, []
 
@@ -590,6 +602,8 @@ class iLQR(BaseController):
                         % self.ep_counter] = ilqr_eval_results["ite_data"]
             if "frames" in ilqr_eval_results:
                 frames.append(ilqr_eval_results["frames"][-1])
+                print(len(frames))
+                breakpoint()
 
             # Print episode reward.
             print(colored("Test Run %d reward %.4f" % (self.ep_counter, ep_returns[-1]), "yellow"))
@@ -624,6 +638,8 @@ class iLQR(BaseController):
 
         # Save frames.
         if frames is not None and len(frames) > 0:
-            eval_results["frames"] = frames
+            eval_results["frames"] = frames[0]
+            print(len(frames[0]))
+            breakpoint()
 
         return eval_results

@@ -76,6 +76,10 @@ def test_policy(config):
         * to test un-trained policy (e.g. non-learning based), use as it is.
 
     """
+    print(config)
+    config.task_config = config.algo_config.task_config
+    config.algo_config = config.algo_config.algo_config
+
     # Evaluation setup.
     set_device_from_config(config)
     if config.set_test_seed:
@@ -120,6 +124,8 @@ def test_policy(config):
     msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(ep_returns.mean(), ep_returns.std())
     print(msg)
     if "frames" in results:
+        print(len(results['frames']))
+        breakpoint()
         save_video(os.path.join(eval_output_dir, "video.gif"), results["frames"])
     control_agent.close()
     print("Evaluation done.")

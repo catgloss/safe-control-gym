@@ -220,7 +220,6 @@ class CartPole(BenchmarkEnv):
             VEL_REF, \
             SPEED = self._generate_trajectory(traj_type=self.TASK_INFO["trajectory_type"],
                                               traj_length=self.EPISODE_LEN_SEC,
-                                              num_cycles=self.TASK_INFO["num_cycles"],
                                               traj_plane=self.TASK_INFO["trajectory_plane"],
                                               position_offset=np.array(self.TASK_INFO["trajectory_position_offset"]),
                                               scaling=self.TASK_INFO["trajectory_scale"],
