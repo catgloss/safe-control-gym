@@ -24,6 +24,8 @@ def train(config):
 
     """
     # Experiment setup.
+    config.task_config.disturbances.observation[0].std = config.noise
+    print(config.task_config.disturbances.observation[0].std)
     if not config.restore:
         set_dir_from_config(config)
     set_seed_from_config(config)
@@ -145,8 +147,33 @@ def plot_results(config):
     ax.legend(loc='best', frameon=False)
     plt.savefig(os.path.join(config.eval_output_dir, "obs_noise_comparison_no_disturbance_no_rand_" + config.algo + ".jpg"))
 
+def plot_comparison(config):
+    noises = [0.0, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+    fig, ax = plt.subplots()
+    y_mse, y_ep_lengths, y_ep_returns = np.zeros((len(noise),1)), np.zeros((len(noise),1)), np.zeros((len(noise),1))
+    x = np.asarray(noises)
+    config.restore = os.path.join(config.output_dir + "/temp", os.listdir(config.output_dir + "/temp")[-1])
+    print(config.restore)
+    for i, n in enumerate(noise):
+        print("Testing for: ", n)
+        config.task_config.disturbances.observation[0].std = n 
+        config.eval_output_dir = config.output_dir
+        [ep_lengths, ep_returns, mse] = test_policy(config)
+        y_mse[i] = np.mean(np.array(mse))
+        y_ep_lengths[i] = np.mean(np.array(ep_lengths))
+        y_ep_returns[i] = np.mean(np.array(ep_returns))
+    ax.plot(x, y, label="trained on "+ str(config.noise))
+    plt.xlabel("Sigma")
+    plt.ylabel("Cost")
+    name = "White Noise Observation Disturbance vs. Cost (With Training)"
+    np.save(os.path.join(config.output_dir, config.algo + "_obs_" + str(config.noise) + "_test_mse"), y_mse)
+    np.save(os.path.join(config.output_dir, config.algo + "_obs_" + str(config.noise) + "_test_ep_lengths"), y_ep_lengths)
+    np.save(os.path.join(config.output_dir, config.algo + "_obs_" + str(config.noise) + "_test_ep_returns"), y_ep_returns)
+    plt.title(name)
+    ax.legend(loc='best', frameon=False)
+    plt.savefig(os.path.join(config.output_dir, "obps_noise_comparison_" + config.noise + "_" + config.algo + ".jpg"))
 
-MAIN_FUNCS = {"test": plot_results}
+MAIN_FUNCS = {"test": plot_results, "train": train, "plot": plot_comparison}
 
 if __name__ == "__main__":
     # Make config.
