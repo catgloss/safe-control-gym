@@ -1,13 +1,14 @@
 algo_config:
-  pretraining: False 
-  pretrained: ./baselines/experiment_results/experiment_results/safe_explorer_cartpole/seed222_Apr-23-14-49-27_v0.5.0-147-g9d4a144
+  pretraining: True 
+  pretrained: "./baselines/experiment_results/experiment_results/safe_explorer_ppo/white_noise/std_0.0/temp/seed-_May-26-11-34-28_v0.5.0-153-gca47d31"
+  constraint_hidden_dim: 64
+  constraint_batch_size: 256
   constraint_slack: 0.05
   log_interval: 1000
   save_interval: 1000
-  constraint_hidden_dim: 64
   num_checkpoints: 10
   eval_interval: 1000
-  eval_save_best: True 
+  eval_save_best: True
   tensorboard: True
 render: true
 task_config:
@@ -65,10 +66,10 @@ task_config:
   #   variable: dynamics
   #   scheduler: cyclic
   #   active_dims: [0,1]
-  #   start: [1,0]
+  #   start: [-0.01,0.01]
   #   sign: [-1,1]
-  #   max: [1, 1]
-  #   min: [0,-1]
-  #   scale: [0.1, 0.1]
+  #   max: [0, 0.15]
+  #   min: [-0.15,0]
+  #   scale: [1, 1]
   #   std: [0.01, 0.01]
 

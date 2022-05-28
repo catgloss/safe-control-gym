@@ -430,7 +430,7 @@ class RAP(BaseController):
         self.total_steps += self.rollout_batch_size * self.rollout_steps
 
         # postprocess for main agent
-        last_val = self.agent.ac.critic(torch.FloatTensor(obs).to(self.device)).detach().numpy()
+        last_val = self.agent.ac.critic(torch.FloatTensor(obs).to(self.device)).detach().cpu().numpy()
         ret, adv = compute_returns_and_advantages(rollouts.rew,
                                                   rollouts.v,
                                                   rollouts.mask,
@@ -449,7 +449,7 @@ class RAP(BaseController):
         obs_groups = split_obs_by_adversary(obs, indices_splits)
         last_val_adv = []
         for idx, obs_adv in zip(indices_groups, obs_groups):
-            out = self.adversaries[idx].ac.critic(torch.FloatTensor(obs_adv).to(self.device)).detach().numpy()
+            out = self.adversaries[idx].ac.critic(torch.FloatTensor(obs_adv).to(self.device)).detach().cpu().numpy()
             last_val_adv.append(out)
         last_val_adv = np.concatenate(last_val_adv)
 

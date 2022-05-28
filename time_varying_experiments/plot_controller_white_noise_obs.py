@@ -107,9 +107,9 @@ def test_policy(config):
         msg = "eval_ep_length {:.2f} +/- {:.2f}\n".format(ep_lengths.mean(), ep_lengths.std())
         msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(ep_returns.mean(), ep_returns.std())
         msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
-        if "frames" in results:
-            print("has frames")
-            save_video(os.path.join(eval_output_dir, "video_" + config.algo + str(config.task_config.disturbances.observation[0].std) + ".gif"), results["frames"])
+        # if "frames" in results:
+        #     print("has frames")
+        #     save_video(os.path.join(eval_output_dir, "video_" + config.algo + str(config.task_config.disturbances.observation[0].std) + ".gif"), results["frames"])
         control_agent.close()
         print("Evaluation done.")
     return [ep_lengths, ep_returns, mse]
@@ -150,11 +150,11 @@ def plot_results(config):
 def plot_comparison(config):
     noises = [0.0, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
     fig, ax = plt.subplots()
-    y_mse, y_ep_lengths, y_ep_returns = np.zeros((len(noise),1)), np.zeros((len(noise),1)), np.zeros((len(noise),1))
+    y_mse, y_ep_lengths, y_ep_returns = np.zeros((len(noises),1)), np.zeros((len(noises),1)), np.zeros((len(noises),1))
     x = np.asarray(noises)
-    config.restore = os.path.join(config.output_dir + "/temp", os.listdir(config.output_dir + "/temp")[-1])
+    config.restore = os.path.join(config.output_dir + "/temp", sorted(os.listdir(config.output_dir + "/temp"))[-1])
     print(config.restore)
-    for i, n in enumerate(noise):
+    for i, n in enumerate(noises):
         print("Testing for: ", n)
         config.task_config.disturbances.observation[0].std = n 
         config.eval_output_dir = config.output_dir
@@ -162,7 +162,7 @@ def plot_comparison(config):
         y_mse[i] = np.mean(np.array(mse))
         y_ep_lengths[i] = np.mean(np.array(ep_lengths))
         y_ep_returns[i] = np.mean(np.array(ep_returns))
-    ax.plot(x, y, label="trained on "+ str(config.noise))
+    ax.plot(x, y_mse, label="trained on "+ str(config.noise))
     plt.xlabel("Sigma")
     plt.ylabel("Cost")
     name = "White Noise Observation Disturbance vs. Cost (With Training)"
@@ -171,7 +171,7 @@ def plot_comparison(config):
     np.save(os.path.join(config.output_dir, config.algo + "_obs_" + str(config.noise) + "_test_ep_returns"), y_ep_returns)
     plt.title(name)
     ax.legend(loc='best', frameon=False)
-    plt.savefig(os.path.join(config.output_dir, "obps_noise_comparison_" + config.noise + "_" + config.algo + ".jpg"))
+    plt.savefig(os.path.join(config.output_dir, "obps_noise_comparison_" + str(config.noise) + "_" + config.algo + ".jpg"))
 
 MAIN_FUNCS = {"test": plot_results, "train": train, "plot": plot_comparison}
 
@@ -186,6 +186,7 @@ if __name__ == "__main__":
     fac.add_argument("--set_test_seed", action="store_true", help="if to set seed when testing policy.")
     fac.add_argument("--eval_output_dir", type=str, help="folder path to save evaluation results.")
     fac.add_argument("--eval_output_path", type=str, default="test_results.pkl", help="file path to save evaluation results.")
+    fac.add_argument("--noise", type=float, default=0.0, help="input noise")
     config = fac.merge()
     # System settings.
     if config.thread > 0:
@@ -195,4 +196,18 @@ if __name__ == "__main__":
     func = MAIN_FUNCS.get(config.func, None)
     if func is None:
         raise Exception("Main function {} not supported.".format(config.func))
+        if func == "train": 
+        print("Need to set to training mode")
+        config.task_config.randomized_init = True
+        config.task_config.init_state_randmization_info = {'init_x': {'distrib': 'uniform', 'low': -0.5, 'high': 0.5}, 
+                                                           'init_x_dot': {'distrib': 'uniform', 'low': -0.5, 'high': 0.5},
+                                                           'init_theta': {'distrib': 'uniform', 'low': -0.35, 'high': 0.35}, 
+                                                           'init_theta_dot': {'distrib': 'uniform', 'low': -0.15, 'high': 0.15}}
+    elif func == "plot" or func == "test":
+        print("Need to set to testing mode")
+        config.task_config.randomized_init = False
+        config.task_config.init_state = { 'init_x' : 0.55, 
+                                          'init_x_dot' : 0.0,
+                                          'init_theta': 0.30, 
+                                          'init_theta_dot': -0.0 }
     func(config)   
