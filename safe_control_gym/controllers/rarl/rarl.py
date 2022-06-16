@@ -404,7 +404,7 @@ class RARL(BaseController):
         if adversary:
             last_val = self.adversary.ac.critic(torch.FloatTensor(obs).to(self.device)).detach().numpy()
         else:
-            last_val = self.agent.ac.critic(torch.FloatTensor(obs).to(self.device)).detach().numpy()
+            last_val = self.agent.ac.critic(torch.FloatTensor(obs).to(self.device)).detach().to('cpu').numpy()
         ret, adv = compute_returns_and_advantages(rollouts.rew,
                                                   rollouts.v,
                                                   rollouts.mask,

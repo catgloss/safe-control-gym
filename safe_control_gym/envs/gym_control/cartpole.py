@@ -477,6 +477,9 @@ class CartPole(BenchmarkEnv):
             force = self.disturbances["action"].apply(force, self)
         if self.adversary_disturbance == "action" and self.adv_action is not None:
             force = force + self.adv_action
+        if self.env_disturbance is not None:
+            if self.env_disturbance['variable'] == 'action':
+                force = force + self._get_env_disturbance()
         # Save the actual input.
         self.current_preprocessed_action = force
         # Only use the scalar value.
@@ -508,8 +511,7 @@ class CartPole(BenchmarkEnv):
                     if (self.env_action[dim] >= self.env_disturbance["max"][i]):
                         self.env_action[dim] = self.env_disturbance["max"][i]
                     if (self.env_action[dim] <= self.env_disturbance["min"][i]):
-                        self.env_action[dim] = self.env_disturbance["min"][i]
-                
+                        self.env_action[dim] = self.env_disturbance["min"][i]   
         return self.env_action
 
 
@@ -536,6 +538,7 @@ class CartPole(BenchmarkEnv):
             tab_force = tab_force + self.adv_action
             # Clear adversary's action, wait for the next one.
             self.adv_action = None
+
         if env_disturb:
             tab_force = tab_force + self._get_env_disturbance()
         for _ in range(self.PYB_STEPS_PER_CTRL):
@@ -584,6 +587,9 @@ class CartPole(BenchmarkEnv):
         obs = deepcopy(self.state)
         if "observation" in self.disturbances:
             obs = self.disturbances["observation"].apply(obs, self)
+        if self.env_disturbance is not None:
+            if self.env_disturbance['variable'] == 'observation':
+                obs += self._get_env_disturbance()
         # Wrap angle to constrain state space, useful in swing-up task.
         if self.obs_wrap_angle:
             obs[2] = normalize_angle(obs[2])

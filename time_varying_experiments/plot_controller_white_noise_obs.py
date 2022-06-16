@@ -24,8 +24,8 @@ def train(config):
 
     """
     # Experiment setup.
-    config.task_config.disturbances.observation[0].std = config.noise
-    print(config.task_config.disturbances.observation[0].std)
+    config.task_config.disturbances.observation[0]['std'] = config.noise
+    print(config.task_config.disturbances.observation[0]['std'])
     if not config.restore:
         set_dir_from_config(config)
     set_seed_from_config(config)
@@ -107,9 +107,9 @@ def test_policy(config):
         msg = "eval_ep_length {:.2f} +/- {:.2f}\n".format(ep_lengths.mean(), ep_lengths.std())
         msg += "eval_ep_return {:.3f} +/- {:.3f}\n".format(ep_returns.mean(), ep_returns.std())
         msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
-        # if "frames" in results:
-        #     print("has frames")
-        #     save_video(os.path.join(eval_output_dir, "video_" + config.algo + str(config.task_config.disturbances.observation[0].std) + ".gif"), results["frames"])
+        if "frames" in results:
+            print("has frames")
+            save_video(os.path.join(eval_output_dir, "video_" + config.algo + str(config.task_config.disturbances.observation[0]['std']) + ".gif"), results["frames"])
         control_agent.close()
         print("Evaluation done.")
     return [ep_lengths, ep_returns, mse]
@@ -133,7 +133,7 @@ def plot_results(config):
         os.makedirs(path, exist_ok=True)
         config.output_dir = os.path.join(path)
         # config.task_config.disturbances.dynamics[0].std = n
-        config.task_config.disturbances.observation[0].std = n 
+        config.task_config.disturbances.observation[0]['std'] = n 
         config.eval_output_dir = os.path.join(path)
         [ep_lengths, ep_returns, mse] = test_policy(config)
         y[i] = np.mean(np.array(mse))
@@ -147,8 +147,18 @@ def plot_results(config):
     ax.legend(loc='best', frameon=False)
     plt.savefig(os.path.join(config.eval_output_dir, "obs_noise_comparison_no_disturbance_no_rand_" + config.algo + ".jpg"))
 
+def visualize(config):
+    config.restore = os.path.join(config.output_dir + "/temp", sorted(os.listdir(config.output_dir + "/temp"))[-1])
+    print("RESTORE: ", config.restore)
+
+    config.task_config.disturbances.observation[0]['std'] = config.noise 
+    config.eval_output_dir = config.eval_output_dir
+    [ep_lengths, ep_returns, mse] = test_policy(config)
+     
+    return
+
 def plot_comparison(config):
-    noises = [0.0, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+    noises = [0.0, 0.01, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15]
     fig, ax = plt.subplots()
     y_mse, y_ep_lengths, y_ep_returns = np.zeros((len(noises),1)), np.zeros((len(noises),1)), np.zeros((len(noises),1))
     x = np.asarray(noises)
@@ -156,7 +166,7 @@ def plot_comparison(config):
     print(config.restore)
     for i, n in enumerate(noises):
         print("Testing for: ", n)
-        config.task_config.disturbances.observation[0].std = n 
+        config.task_config.disturbances.observation[0]['std'] = n 
         config.eval_output_dir = config.output_dir
         [ep_lengths, ep_returns, mse] = test_policy(config)
         y_mse[i] = np.mean(np.array(mse))
@@ -171,9 +181,9 @@ def plot_comparison(config):
     np.save(os.path.join(config.output_dir, config.algo + "_obs_" + str(config.noise) + "_test_ep_returns"), y_ep_returns)
     plt.title(name)
     ax.legend(loc='best', frameon=False)
-    plt.savefig(os.path.join(config.output_dir, "obps_noise_comparison_" + str(config.noise) + "_" + config.algo + ".jpg"))
+    plt.savefig(os.path.join(config.output_dir, "obs_noise_comparison_" + str(config.noise) + "_" + config.algo + ".jpg"))
 
-MAIN_FUNCS = {"test": plot_results, "train": train, "plot": plot_comparison}
+MAIN_FUNCS = {"test": plot_results, "train": train, "plot": plot_comparison, "visualize": visualize}
 
 if __name__ == "__main__":
     # Make config.
@@ -196,18 +206,20 @@ if __name__ == "__main__":
     func = MAIN_FUNCS.get(config.func, None)
     if func is None:
         raise Exception("Main function {} not supported.".format(config.func))
-        if func == "train": 
+    if func == "train": 
         print("Need to set to training mode")
         config.task_config.randomized_init = True
         config.task_config.init_state_randmization_info = {'init_x': {'distrib': 'uniform', 'low': -0.5, 'high': 0.5}, 
                                                            'init_x_dot': {'distrib': 'uniform', 'low': -0.5, 'high': 0.5},
                                                            'init_theta': {'distrib': 'uniform', 'low': -0.35, 'high': 0.35}, 
                                                            'init_theta_dot': {'distrib': 'uniform', 'low': -0.15, 'high': 0.15}}
-    elif func == "plot" or func == "test":
+    elif config.func == "plot" or config.func == "test" or config.func == "visualize":
         print("Need to set to testing mode")
         config.task_config.randomized_init = False
         config.task_config.init_state = { 'init_x' : 0.55, 
                                           'init_x_dot' : 0.0,
                                           'init_theta': 0.30, 
                                           'init_theta_dot': -0.0 }
+    config.task_config.disturbances.observation[0] = {"disturbance_func" : "white_noise", 
+                                                 "std": config.noise}
     func(config)   

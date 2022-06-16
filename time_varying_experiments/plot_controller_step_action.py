@@ -107,13 +107,15 @@ def test_policy(config):
         msg += "eval_mse {:.3f} +/- {:.3f}\n".format(mse.mean(), mse.std())
         if "frames" in results:
             print("has frames")
-            save_video(os.path.join(config.eval_output_dir, "video_" + config.algo + "_" + str(config.noise) + ".gif"), results["frames"])
+            print(len(results['frames']))
+            save_video(os.path.join(eval_output_dir, "video_" + config.algo + "_" + str(config.task_config.disturbances.action[0]['magnitude']) + ".gif"), results["frames"])
         control_agent.close()
         print("Evaluation done.")
     return [ep_lengths, ep_returns, mse]
 
 def plot_results(config):
-    noises = [0.0, 0.1, 0.3, 0.5, 0.75, 1.0, 1.25, 1.5]
+    noises = [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 3.5, 4.5, 5.0, 5.5, 6]
+
     fig, ax = plt.subplots()
     y_mse, y_ep_lengths, y_ep_returns = np.zeros((len(noises),1)), np.zeros((len(noises),1)), np.zeros((len(noises),1))
     x = np.asarray(noises)
@@ -121,12 +123,7 @@ def plot_results(config):
     print(config.restore)
     for i, n in enumerate(noises):
         print("Testing for: ", n)
-        if config.dist == 'action':
-            config.task_config.env_disturbance['max'] = [n]
-            config.task_config.env_disturbance['min'] = [0] 
-        else:
-            config.task_config.env_disturbance['max'] = [0, n]
-            config.task_config.env_disturbance['min'] = [-1*n, 0] 
+        config.task_config.disturbances.action[0]['magnitude'] = n 
         [ep_lengths, ep_returns, mse] = test_policy(config)
         y_mse[i] = np.mean(np.array(mse))
         y_ep_lengths[i] = np.mean(np.array(ep_lengths))
@@ -134,58 +131,27 @@ def plot_results(config):
     ax.plot(x, y_mse)
     plt.xlabel("Sigma")
     plt.ylabel("Cost")
-    name = "Step Dynamics Disturbance vs. Cost"
-    np.save(os.path.join(config.eval_output_dir, config.algo + "_dynamics_" + str(config.noise) + "_test_mse"), y_mse)
-    np.save(os.path.join(config.eval_output_dir, config.algo + "_dynamics_" + str(config.noise) + "_test_ep_lengths"), y_ep_lengths)
-    np.save(os.path.join(config.eval_output_dir, config.algo + "_dynamics_" + str(config.noise) + "_test_ep_returns"), y_ep_returns)
+    name = "Step Action Disturbance vs. Cost"
+    np.save(os.path.join(config.eval_output_dir, config.algo + "_action__test_mse"), y_mse)
+    np.save(os.path.join(config.eval_output_dir, config.algo + "_action_test_ep_lengths"), y_ep_lengths)
+    np.save(os.path.join(config.eval_output_dir, config.algo + "_action_test_ep_returns"), y_ep_returns)
     plt.title(name)
     ax.legend(loc='best', frameon=False)
-    plt.savefig(os.path.join(config.eval_output_dir, "dynamics_noise_comparison_" + str(config.noise) + "_" + config.algo + ".jpg"))
+    plt.savefig(os.path.join(config.eval_output_dir, "action_noise_comparison_" + str(config.noise) + "_" + config.algo + ".jpg"))
 
 def visualize(config):
     config.restore = os.path.join(config.output_dir + "/temp", sorted(os.listdir(config.output_dir + "/temp"))[-1])
     print("RESTORE: ", config.restore)
     print("NOISE: ", config.noise)
 
-    if config.dist == 'action':
-        config.task_config.env_disturbance['max'] = [config.noise]
-        config.task_config.env_disturbance['min'] = [0] 
-    else:
-        config.task_config.env_disturbance['max'] = [0, config.noise]
-        config.task_config.env_disturbance['min'] = [-1*config.noise, 0] 
+    config.task_config.disturbances.action[0]['magnitude'] = config.noise 
     config.eval_output_dir = config.eval_output_dir
     [ep_lengths, ep_returns, mse] = test_policy(config)
      
     return
 
-def plot_comparison(config):
-    noises = [0.0, 0.05, 0.1, 0.15, 0.25, 0.5, 0.75, 1.0, 1.5]
-    fig, ax = plt.subplots()
-    y_mse, y_ep_lengths, y_ep_returns = np.zeros((len(noises),1)), np.zeros((len(noises),1)), np.zeros((len(noises),1))
-    x = np.asarray(noises)
-    config.restore = os.path.join(config.output_dir + "/temp", sorted(os.listdir(config.output_dir + "/temp"))[-1])
-    print(config.restore)
-    for i, n in enumerate(noises):
-        print("Testing for: ", n)
-        config.task_config.env_disturbance.max = [0, n]
-        config.task_config.env_disturbance.min = [-1*n, 0] 
-        config.eval_output_dir = config.output_dir
-        [ep_lengths, ep_returns, mse] = test_policy(config)
-        y_mse[i] = np.mean(np.array(mse))
-        y_ep_lengths[i] = np.mean(np.array(ep_lengths))
-        y_ep_returns[i] = np.mean(np.array(ep_returns))
-    ax.plot(x, y_mse, label="trained on "+ str(config.noise))
-    plt.xlabel("Sigma")
-    plt.ylabel("Cost")
-    name = config.noise_type.capitialize() + " Dynamics Disturbance vs. Cost (With Training)"
-    np.save(os.path.join(config.output_dir, ("_").join([config.algo, config.noise_type, "test_mse.npy"])), y_mse)
-    np.save(os.path.join(config.output_dir, ("_").join([config.algo, config.noise_type, "test_ep_lengths.npy"])), y_ep_lengths)
-    np.save(os.path.join(config.output_dir, ("_").join([config.algo, config.noise_type, "test_ep_returns.npy"])), y_ep_returns)
-    plt.title(name)
-    ax.legend(loc='best', frameon=False)
-    plt.savefig(os.path.join(config.output_dir, ("_").join([config.noise_type, "comparison", config.algo + ".jpg"])))
 
-MAIN_FUNCS = {"test": plot_results, "train": train, "plot": plot_comparison, "visualize": visualize}
+MAIN_FUNCS = {"test": plot_results, "visualize": visualize}
 
 if __name__ == "__main__":
     # Make config.
@@ -199,8 +165,6 @@ if __name__ == "__main__":
     fac.add_argument("--eval_output_dir", type=str, help="folder path to save evaluation results.")
     fac.add_argument("--eval_output_path", type=str, default="test_results.pkl", help="file path to save evaluation results.")
     fac.add_argument("--noise", type=float, default=0.0, help="input noise")
-    fac.add_argument("--noise_type", type=str, default="N/A")
-    fac.add_argument("--dist", type=str, default="other")
     config = fac.merge()
     # System settings.
     if config.thread > 0:
@@ -224,37 +188,7 @@ if __name__ == "__main__":
                                           'init_x_dot' : 0.0,
                                           'init_theta': 0.30, 
                                           'init_theta_dot': -0.0 }
-    
-    if config.noise_type == "cyclic": 
-        config.task_config.env_disturbance = {'variable': 'dynamics', 
-                                              'scheduler': 'cyclic',
-                                              'active_dims': [0,1],
-                                              'start' : [-0.01, 0.01], 
-                                              'sign': [-1, 1], 
-                                              'max': [0, 0.15], 
-                                              'min': [-0.15, 0], 
-                                              'scale': [1, 1], 
-                                              'std': [0.01, 0.01]}
-    elif config.noise_type == "saw": 
-        config.task_config.env_disturbance = {'variable': 'dynamics', 
-                                              'scheduler': 'saw',
-                                              'active_dims': [0,1],
-                                              'start' : [-0.01, 0.01], 
-                                              'sign': [-1, 1], 
-                                              'max': [0, 0.0], 
-                                              'min': [0.0, 0], 
-                                              'scale': [1, 1], 
-                                              'std': [0.01, 0.01]}
-    else: 
-        config.task_config.env_disturbance = None
-
-    if config.dist == "action":
-        config.task_config.env_disturbance['active_dims'] = [0]  
-        config.task_config.env_disturbance['start'] = [0.01]
-        config.task_config.env_disturbance['sign'] = [1]
-        config.task_config.env_disturbance['max'] = [0]
-        config.task_config.env_disturbance['min'] = [0]
-        config.task_config.env_disturbance['scale'] = [1]
-        config.task_config.env_disturbance['std'] = [0.01]
-
+    config.task_config.disturbances.action[0] = {"disturbance_func" : "step", 
+                                                      "magnitude" : config.noise,
+                                                      "step_offset": 2}
     func(config)   
